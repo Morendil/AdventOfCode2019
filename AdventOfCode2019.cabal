@@ -1,0 +1,32 @@
+cabal-version: 2.4
+name: AdventOfCode2019
+version: 1.0
+stability: experimental
+x-ghc-framework-version: 8.6.4-13.14-2
+x-last-ide-version: HfM1.7.0
+data-files:
+    Day01.txt
+    Day02.txt
+
+executable AdventOfCode2019
+    main-is: Main.hs
+    other-modules:
+        Day01PartOneSpec
+        Common
+        Day02PartOne
+        Day04PartTwo
+        Day02PartOneSpec
+        Day04PartOneSpec
+        Day04PartOne
+        Day01
+        Day01PartTwo
+        Day04
+        Day01PartOne
+        Day01PartTwoSpec
+        Day02
+        Day02PartTwo
+        Day04PartTwoSpec
+    build-depends:
+        base -any,
+        hspec -any,
+        ansi-terminal -any
