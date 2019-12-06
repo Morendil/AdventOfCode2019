@@ -25,9 +25,8 @@ orbits :: [(String, String)] -> Int
 orbits pairs = sum $ map (countAncestors pairs) $ individuals pairs
   where individuals = nub . map snd
 
-
 main = do
     contents <- readFile "Day06.txt"
     let l = lines contents
-    let pairs = catMaybes $ map (parseMaybe parsePair) l
+    let pairs = mapMaybe (parseMaybe parsePair) l
     print $ orbits pairs
