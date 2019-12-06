@@ -4,6 +4,7 @@ import Common
 import Data.Maybe
 import Data.Char
 import Data.List
+import Data.Tree
 import Text.ParserCombinators.ReadP
 
 parsePair :: ReadP (String, String)
@@ -14,16 +15,16 @@ parsePair = do
     return (one, two)
   where ident = many1 (satisfy isAlphaNum)
 
-ancestors :: [(String, String)] -> String -> [Maybe String]
-ancestors pairs individual = tail $ takeWhile isJust $ iterate (findAncestor pairs) (Just individual)
-  where findAncestor pairs individual = fmap fst $ find (\(a, b) -> Just b == individual) pairs
-
-countAncestors :: [(String, String)] -> String -> Int
-countAncestors pairs individual = length $ ancestors pairs individual
-
 orbits :: [(String, String)] -> Int
-orbits pairs = sum $ map (countAncestors pairs) $ individuals pairs
-  where individuals = nub . map snd
+orbits pairs = sum $ zipWith (\index leaves -> index * (length leaves)) [0..count] levs
+  where levs = levels $ tree pairs
+        count = length levs
+
+root :: [(String, String)] -> String
+root pairs = head $ ((nub . map fst) pairs) \\ ((nub . map snd) pairs)
+
+tree :: [(String, String)] -> Tree String
+tree pairs = unfoldTree (\origin -> (origin, map snd $ filter (\(a,b) -> a == origin) pairs)) (root pairs)
 
 main = do
     contents <- readFile "Day06.txt"

@@ -29,4 +29,5 @@ executable AdventOfCode2019
     build-depends:
         base -any,
         hspec -any,
-        ansi-terminal -any
+        ansi-terminal -any,
+        containers -any
