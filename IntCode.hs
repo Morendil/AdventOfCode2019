@@ -33,15 +33,16 @@ step state@(pos, program, inputs, outputs) = case op of
         7 -> (next 4, write result (if x < y then 1 else 0), inputs, outputs)
         8 -> (next 4, write result (if x == y then 1 else 0), inputs, outputs)
         99 -> state
-        otherwise -> error ("HCF"++show state)
+        otherwise -> error ("HCF"++show (pos, program))
     where next count = pos + count
-          opcode = (program !! pos)
+          opcode = access pos
           op = opcode `mod` 100
           fetch n = if mode n == 1 then immediate n else value n
           mode n = (opcode `div` (10^(1+n))) `mod` 10
-          immediate n = program !! (pos+n)
+          access n = if n < length program then program !! n else error ("HCF"++show (pos, program))
+          immediate n = access (pos+n)
           addr n = fromInteger $ immediate n
-          value n = program !! (addr n)
+          value n = access (addr n)
           write address value = replace address value program
           -- shortcuts for opcodes 1, 2
           result = addr 3
