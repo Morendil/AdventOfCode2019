@@ -30,4 +30,9 @@ executable AdventOfCode2019
         base -any,
         hspec -any,
         ansi-terminal -any,
-        containers -any
+        containers -any,
+        unordered-containers -any,
+        QuickCheck -any,
+        astar -any,
+        mtl -any,
+        MemoTrie -any
