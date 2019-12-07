@@ -3,7 +3,6 @@ module GoldenOldie2018Day22Spec where
 
 import GoldenOldie2018Day22 hiding (main)
 import Test.Hspec
-import Test.QuickCheck
 
 main = hspec $
     describe "Terrain" $ do
