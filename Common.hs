@@ -1,6 +1,7 @@
 module Common where
 
 import Data.Char
+import Data.List
 import Text.ParserCombinators.ReadP
 
 readInt :: String -> Integer
@@ -32,3 +33,6 @@ untilStable = snd . last . takeWhile notSame . oneAndNext
 
 replace :: Int -> a -> [a] -> [a]
 replace n x xs = (take n xs) ++ [x] ++ (drop (n+1) xs)
+
+chunks :: Int -> [a] -> [[a]]
+chunks n = takeWhile (not.null) . unfoldr (Just . splitAt n)
