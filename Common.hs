@@ -2,6 +2,7 @@ module Common where
 
 import Data.Char
 import Data.List
+import Data.Ord
 import Text.ParserCombinators.ReadP
 
 readInt :: String -> Integer
@@ -36,3 +37,9 @@ replace n x xs = (take n xs) ++ [x] ++ (drop (n+1) xs)
 
 chunks :: Int -> [a] -> [[a]]
 chunks n = takeWhile (not.null) . unfoldr (Just . splitAt n)
+
+sortOrder :: (a -> a -> Ordering) -> [a] -> [Int]
+sortOrder f list = map fst $ sortBy (\x y -> f (snd x) (snd y)) $ indexed list
+
+indexed :: [a] -> [(Int, a)]
+indexed list = zip [0..(length list)] list
