@@ -2,49 +2,68 @@ module IntCode where
   
 import Common
 import Data.Maybe (fromMaybe)
+import qualified Data.HashMap.Strict as Map
 
 type Program = [Integer]
 type Inputs = [Integer]
 type Outputs = [Integer]
-type State = (Int, Program, Inputs, Outputs)
+type Memory = Map.HashMap Integer Integer
+type State = (Int, Program, Inputs, Outputs, Integer, Memory)
+
+initialize :: Program -> Inputs -> State
+initialize program inputs = (0, program, inputs, [], 0, Map.empty)
 
 execute :: Inputs -> String -> Outputs
 execute inputs = run inputs . parse
 
 finalProgram :: String -> Program
-finalProgram program = get $ untilStable $ iterate step (0, parse program, [], [])
-    where get (_, p, _, _) = p
+finalProgram program = get $ untilStable $ iterate step $ initialize (parse program) []
+    where get (_, p, _, _, _, _) = p
 
 parse :: String -> Program
 parse program = fromMaybe [] $ parseMaybe numberList program
 
 run :: Inputs -> Program -> Outputs
-run inputs program = outputs $ untilStable $ iterate step (0, program, inputs, [])
-    where outputs (_, _, _, v) = v
+run inputs program = outputs $ untilStable $ iterate step $ initialize program inputs
+    where outputs (_, _, _, v,_,_) = v
+
+write :: Integer -> Integer -> State -> State
+write n value (pos, program, inputs, outputs, base, memory) = if fromInteger n < length program
+    then (pos, replace (fromInteger n) value program, inputs, outputs, base, memory)
+    else (pos, program, inputs, outputs, base, Map.insert n value memory)
 
 step :: State -> State
-step state@(pos, program, inputs, outputs) = case op of
-        1 -> (next 4, write result (x+y), inputs, outputs)
-        2 -> (next 4, write result (x*y), inputs, outputs)
-        3 -> (next 2, write (addr 1) (head inputs), tail inputs, outputs)
-        4 -> (next 2, program, inputs, outputs ++ [fetch 1])
-        5 -> (if x /= 0 then fromInteger y else next 3, program, inputs, outputs)
-        6 -> (if x == 0 then fromInteger y else next 3, program, inputs, outputs)
-        7 -> (next 4, write result (if x < y then 1 else 0), inputs, outputs)
-        8 -> (next 4, write result (if x == y then 1 else 0), inputs, outputs)
+step state@(pos, program, inputs, outputs, base, memory) = case op of
+        1 -> write result (x+y) (next 4, program, inputs, outputs, base, memory)
+        2 -> write result (x*y) (next 4, program, inputs, outputs, base, memory)
+        3 -> write (put 1) (head inputs) (next 2, program, tail inputs, outputs, base, memory)
+        4 -> (next 2, program, inputs, outputs ++ [x], base, memory)
+        5 -> (if x /= 0 then fromInteger y else next 3, program, inputs, outputs, base, memory)
+        6 -> (if x == 0 then fromInteger y else next 3, program, inputs, outputs, base, memory)
+        7 -> write result (if x < y then 1 else 0) (next 4, program, inputs, outputs, base, memory)
+        8 -> write result (if x == y then 1 else 0) (next 4, program, inputs, outputs, base, memory)
+        9 -> (next 2, program, inputs, outputs, base + x, memory)
         99 -> state
-        otherwise -> error ("HCF"++show (pos, program))
+        otherwise -> error ("HCF(op="++show op++")"++show (pos, program))
     where next count = pos + count
           opcode = access pos
           op = opcode `mod` 100
-          fetch n = if mode n == 1 then immediate n else value n
+          fetch n = case mode n of
+            0 -> value n
+            1 -> immediate n
+            2 -> relative n
+            _ -> error ("HCF(mode="++show (mode n)++")"++show (pos, program))
+          put n = case mode n of
+            0 -> addr n
+            2 -> fromInteger $ base + (immediate n)
+            _ -> error ("HCF(write mode="++show (mode n)++")"++show (pos, program))
           mode n = (opcode `div` (10^(1+n))) `mod` 10
-          access n = if n < length program then program !! n else error ("HCF"++show (pos, program))
+          access n = if n < length program then program !! n else Map.lookupDefault 0 (toInteger n) memory
           immediate n = access (pos+n)
           addr n = fromInteger $ immediate n
           value n = access (addr n)
-          write address value = replace address value program
+          relative n = access $ fromInteger $ base + (immediate n)
           -- shortcuts for opcodes 1, 2
-          result = addr 3
+          result = put 3
           x = fetch 1
           y = fetch 2
