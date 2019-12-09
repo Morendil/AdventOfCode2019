@@ -54,11 +54,13 @@ targetSelection groups = foldl (pickTarget groups) [] $ sortBy selectionOrder (i
 pickTarget :: [Group] -> [(Int, Int)] -> (Int, Group) -> [(Int, Int)]
 pickTarget groups picks (atkIndex, attacker) = if null candidates then picks else picks ++ [choose $ head candidates]
   where indexedTargets = indexed groups
-        targetOrder = mappend (comparing (Down . dealDamage attacker . snd)) (comparing (Down . effectivePower . snd))
+        targetOrder = mconcat $ map comparing [(Down . dealDamage attacker . snd), (Down . effectivePower . snd), (Down . initiative . attack . snd)]
         picked target = isJust $ find (\(_,index) -> index == target) picks
-        candidates = filter (\(index, group) -> (not.picked) index && opposing group) (sortBy targetOrder indexedTargets)
+        candidates = filter (\(index, group) -> (not.picked) index && opposing group && (dealDamage attacker group) > 0) (sortBy targetOrder indexedTargets)
         opposing target = army target /= army attacker
         choose (index, target) = (atkIndex, index)
+
+display armies = unlines $ map show $ zip (map army armies) (map units armies)
 
 main = do
     contents <- readFile "GoldenOldie2018Day24.txt"
