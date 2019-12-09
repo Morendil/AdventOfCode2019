@@ -33,14 +33,16 @@ war :: [Group] -> Integer
 war = sum . map units . untilStable . iterate fight
 
 fight :: [Group] -> [Group]
-fight groups = foldl (doFight order) groups $ byInitiative
+fight groups = cleanup $ foldl (doFight order) groups $ byInitiative
   where byInitiative = sortOn (Down . initiative . attack . snd) (indexed groups)
         order = targetSelection groups
 
 doFight :: [(Int, Int)] -> [Group] -> (Int, Group) -> [Group]
-doFight order groups (index, _) = replace defender result groups
-  where defender = fromJust $ (lookup index order)
-        result = attackGroup (groups !! index) (groups !! defender)
+doFight order groups (index, _) = if isJust defender
+    then replace (fromJust defender) result groups
+    else groups
+  where defender = lookup index order
+        result = attackGroup (groups !! index) (groups !! fromJust defender)
 
 cleanup :: [Group] -> [Group]
 cleanup = filter (\group -> units group > 0)
