@@ -71,6 +71,12 @@ summary armies = doBoth $ toPair armies
 delta :: ((Integer, Integer),(Integer, Integer)) -> (Integer, Integer)
 delta ((a,b),(c, d)) = (c-a,d-b)
 
+boost :: String -> Integer -> [Group] -> [Group]
+boost name amount = map (\g -> if army g == name then g {units = (units g) + amount} else g)
+
+winner :: [Group] -> String
+winner = army . head . untilStable . iterate fight
+
 main = do
     contents <- readFile "GoldenOldie2018Day24.txt"
-    putStrLn $ unlines $ map show $ map delta $ oneAndNext $ map summary $ take 685 $ iterate fight $ parse contents
+    print $ winner $ boost "Immune System" 1347 $ parse contents
