@@ -2,5 +2,5 @@
 flags: {}
 packages:
 - '.'
-extra-deps: []
+extra-deps: ["astar-0.3.0.0@sha256:8bf6350542e9db9451490e8993560ee843dc48a61d46a206985430f9b62461c8"]
 resolver: lts-14.16
