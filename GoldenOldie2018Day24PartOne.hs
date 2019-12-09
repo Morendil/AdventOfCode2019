@@ -13,12 +13,6 @@ effectivePower group = (units group) * (damage $ attack group)
 effectiveHitpoints :: Group -> Integer
 effectiveHitpoints group = (units group) * (hitPoints group)
 
-targetCriteria :: Group -> Group -> Group -> Ordering
-targetCriteria attacker = mappend (comparing (dealDamage attacker)) (comparing effectivePower)
-
-targetOrder :: Army -> Army -> [Int]
-targetOrder atk def = map last $ map (\attacker -> sortOrder (targetCriteria attacker) (groups atk)) (groups def)
-
 dealDamage :: Group -> Group -> Integer
 dealDamage atk def = if immune then 0 else if weak then 2 * dmg else dmg
   where dmg = effectivePower atk
@@ -26,38 +20,44 @@ dealDamage atk def = if immune then 0 else if weak then 2 * dmg else dmg
         immune = elem what $ immunities def
         weak = elem what $ weaknesses def
 
-damageMatrix :: (Army, Army) -> ([[Integer]],[[Integer]])
-damageMatrix (army1, army2) = (potential army1 army2, potential army2 army1)
-  where potential a1 a2 = cross (groups a1) (groups a2)
+damageMatrix :: [Group] -> ([[Integer]],[[Integer]])
+damageMatrix groups = (cross army1 army2, cross army2 army1)
+  where (army1, army2) = partition (\group -> (army group) == (army $ head groups)) groups
         cross g1 g2 = [[dealDamage i1 i2 | i2 <- g2] | i1 <- g1]
 
 attackGroup :: Group -> Group -> Group
 attackGroup attacker defender = defender {units = max 0 $ units defender - (damageSuffered `div` hitPoints defender)}
   where damageSuffered = dealDamage attacker defender
 
-type Selector = (Army, Army) -> (Army, Army)
-fightOrder :: (Army, Army) -> [(Selector, Int, Int, Integer)]
-fightOrder (a1, a2) = sortOn (Down . getRank) $ (go swap a1 a2) ++ (go id a2 a1)
-  where go sel atk def = [(sel, index, target, rank index atk) | (index, target) <- indexed $ targetOrder def atk]
-        rank n army = (initiative . attack) ((groups army) !! n)
-        getRank (_,_,_,rank) = rank
+war :: [Group] -> Integer
+war = sum . map units . untilStable . iterate fight
 
-fight :: (Army, Army) -> (Army, Army)
-fight war = cleanup $ foldl doFight war (fightOrder war)
+fight :: [Group] -> [Group]
+fight groups = foldl (doFight order) groups $ byInitiative
+  where byInitiative = sortOn (Down . initiative . attack . snd) (indexed groups)
+        order = targetSelection groups
 
-cleanup :: (Army, Army) -> (Army, Army)
-cleanup (a, b) = (doCleanup a, doCleanup b)
-   where doCleanup army = army { groups = filter (\group -> units group > 0) (groups army)}
+doFight :: [(Int, Int)] -> [Group] -> (Int, Group) -> [Group]
+doFight order groups (index, _) = replace defender result groups
+  where defender = fromJust $ (lookup index order)
+        result = attackGroup (groups !! index) (groups !! defender)
 
-doFight :: (Army, Army) -> (Selector, Int, Int, Integer) -> (Army, Army)
-doFight pair (sel, index, target, _) = sel (defender { groups = replace target result (groups defender)}, attacker)
-  where defender = fst $ sel pair
-        attacker = snd $ sel pair
-        result = attackGroup (groups attacker !! index) ((groups defender) !! target)
+cleanup :: [Group] -> [Group]
+cleanup = filter (\group -> units group > 0)
 
-repr (s,x,y,z) = (x,y,z)
-summary (a1,a2) = map units $ (groups a1 ++ groups a2)
+targetSelection :: [Group] -> [(Int, Int)]
+targetSelection groups = foldl (pickTarget groups) [] $ sortBy selectionOrder (indexed groups)
+  where selectionOrder = mappend (comparing (Down . effectivePower . snd)) (comparing (Down . initiative . attack . snd))
+
+pickTarget :: [Group] -> [(Int, Int)] -> (Int, Group) -> [(Int, Int)]
+pickTarget groups picks (atkIndex, attacker) = if null candidates then picks else picks ++ [choose $ head candidates]
+  where indexedTargets = indexed groups
+        targetOrder = mappend (comparing (Down . dealDamage attacker . snd)) (comparing (Down . effectivePower . snd))
+        picked target = isJust $ find (\(_,index) -> index == target) picks
+        candidates = filter (\(index, group) -> (not.picked) index && opposing group) (sortBy targetOrder indexedTargets)
+        opposing target = army target /= army attacker
+        choose (index, target) = (atkIndex, index)
 
 main = do
     contents <- readFile "GoldenOldie2018Day24.txt"
-    print $ parse contents
+    print $ war $ parse contents

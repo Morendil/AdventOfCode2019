@@ -36,29 +36,28 @@ group = do
     string " damage at initiative "
     init <- number    
     let attack = Attack damage itsType init
-        result = Group units hitPoints attack [] []
+        result = Group "" units hitPoints attack [] []
     return $ foldr id result optionals
 
-army = do
+anArmy = do
     name <- many1 $ satisfy (/= ':')
     char ':'; char '\n'
     groups <- sepBy1 group (char '\n')
     char '\n'
-    return $ Army name groups
+    return $ map (\group -> group {army = name}) groups
 
 armies = do
-    army1 <- army
+    army1 <- anArmy
     char '\n'
-    army2 <- army
-    return (army1, army2)
+    army2 <- anArmy
+    return $ army1 ++ army2
 
 data AttackType = Bludgeoning | Radiation | Slashing | Cold | Fire deriving (Eq, Show)
 data Attack = Attack {damage :: Integer, attackType :: AttackType, initiative :: Integer} deriving (Eq, Show)
 
-data Group = Group {units :: Integer, hitPoints :: Integer, attack :: Attack, weaknesses :: [AttackType], immunities :: [AttackType]} deriving (Eq, Show)
-data Army = Army {name :: String, groups :: [Group]} deriving (Eq, Show)
+data Group = Group {army :: String, units :: Integer, hitPoints :: Integer, attack :: Attack, weaknesses :: [AttackType], immunities :: [AttackType]} deriving (Eq, Show)
 
-parse :: String -> (Army, Army)
+parse :: String -> [Group]
 parse = fromJust . parseMaybe armies
 
 main = do
