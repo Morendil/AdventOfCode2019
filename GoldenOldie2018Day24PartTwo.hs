@@ -72,11 +72,11 @@ delta :: ((Integer, Integer),(Integer, Integer)) -> (Integer, Integer)
 delta ((a,b),(c, d)) = (c-a,d-b)
 
 boost :: String -> Integer -> [Group] -> [Group]
-boost name amount = map (\g -> if army g == name then g {units = (units g) + amount} else g)
+boost name amount = map (\g -> if army g == name then g {attack = (attack g) {damage = (damage.attack) g + amount}} else g)
 
 winner :: [Group] -> String
 winner = army . head . untilStable . iterate fight
 
 main = do
     contents <- readFile "GoldenOldie2018Day24.txt"
-    print $ winner $ boost "Immune System" 1347 $ parse contents
+    print $ winner $ boost "Immune System" 30 $ parse contents
