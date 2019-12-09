@@ -1,4 +1,4 @@
-module GoldenOldie2018Day24PartOne where
+module GoldenOldie2018Day24PartTwo where
 
 import Common
 import Data.Ord
@@ -79,4 +79,5 @@ winner = army . head . untilStable . iterate fight
 
 main = do
     contents <- readFile "GoldenOldie2018Day24.txt"
-    print $ winner $ boost "Immune System" 30 $ parse contents
+    -- putStrLn $ unlines $ map (show . summary) $ take 1600 $ iterate fight $ boost "Immune System" 30 $ parse contents
+    print $ summary $ untilStable $ iterate fight $ boost "Immune System" 31 $ parse contents
