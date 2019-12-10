@@ -1,4 +1,4 @@
-module Day10PartTwo where
+module Day10Animated where
 
 import Common
 import Data.List
@@ -23,15 +23,21 @@ displayOne lines (x,y) = replace y ((replace x '.') (lines !! y)) lines
 main = do
     contents <- readFile "Day10Sample5.txt"
     let field = asteroidCoordinates contents
-    let frames = vaporizeOrder (bestOf field) field
     clearScreen
-    foldlM frame (lines contents) frames
-    return ()
-
-frame :: [String] -> (Int, Int) -> IO [String]
-frame strings target = do
     setCursorPosition 0 0
-    let nextFrame = displayOne strings target
-    putStrLn $ unlines $ nextFrame
-    threadDelay 30000
-    return nextFrame
+    putStrLn contents
+    let frames = vaporizeOrder (bestOf field) field
+    flip mapM frames (\(x,y) -> do
+        setSGR [SetColor Foreground Vivid Red]
+        setCursorPosition y x
+        putStr "#"
+        threadDelay 40000
+        setSGR [SetColor Foreground Dull Red]
+        setCursorPosition y x
+        putStr "#"
+        threadDelay 40000
+        setSGR [SetColor Foreground Vivid Black]
+        setCursorPosition y x
+        putStr "."
+        threadDelay 10000)
+    setCursorPosition (length field) (length $ head field) 
