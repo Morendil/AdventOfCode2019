@@ -24,14 +24,13 @@ main = do
     contents <- readFile "Day10Sample5.txt"
     let field = asteroidCoordinates contents
     let frames = vaporizeOrder (bestOf field) field
+    clearScreen
     foldlM frame (lines contents) frames
     return ()
 
 frame :: [String] -> (Int, Int) -> IO [String]
 frame strings target = do
     setCursorPosition 0 0
-    clearScreen
-    threadDelay 10000
     let nextFrame = displayOne strings target
     putStrLn $ unlines $ nextFrame
     threadDelay 30000
