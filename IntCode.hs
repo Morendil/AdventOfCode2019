@@ -1,7 +1,7 @@
 module IntCode where
   
 import Common
-import Data.Maybe (fromMaybe)
+import Data.Maybe
 import qualified Data.HashMap.Strict as Map
 
 type Program = [Integer]
@@ -26,6 +26,14 @@ parse program = fromMaybe [] $ parseMaybe numberList program
 run :: Inputs -> Program -> Outputs
 run inputs program = outputs $ untilStable $ iterate step $ initialize program inputs
     where outputs (_, _, _, v,_,_) = v
+
+outputSequence :: Program -> [Integer] -> [Integer]
+outputSequence program inputs = mapMaybe onChange $ oneAndNext $ map output $ execSequence program inputs
+  where output (_, _, out) = out
+        onChange (one, next) = if one == next then Nothing else Just $ last next
+
+execSequence program inputs = map snd $ takeWhile notSame $ oneAndNext $ map dropInputs $ iterate step $ initialize program inputs
+  where dropInputs (pos, program, inputs, outputs, base, memory) = (pos, program, outputs)
 
 write :: Integer -> Integer -> State -> State
 write n value (pos, program, inputs, outputs, base, memory) = if fromInteger n < length program
