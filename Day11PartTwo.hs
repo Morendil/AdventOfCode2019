@@ -35,6 +35,9 @@ stepState (State panels dir pos) [paint, turn] = State panels' dir' pos'
         pos' = move dir' pos
         panels' = Map.insert pos (paint == 1) panels
 
+input :: State -> Integer
+input (State panels _ pos) = if Map.lookup pos panels == Just True then 1 else 0
+
 move :: Direction -> Position -> Position
 move U (x, y) = (x, y+1)
 move D (x, y) = (x, y-1)
@@ -53,9 +56,6 @@ doTurn R 0 = U
  
 empty :: State
 empty = State (Map.insert (0,0) True Map.empty) U (0,0)
-
-input :: State -> Integer
-input (State panels _ pos) = if Map.lookup pos panels == Just True then 1 else 0
 
 main = do
     contents <- readFile "Day11.txt"
