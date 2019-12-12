@@ -10,8 +10,7 @@ assign :: ReadP Int
 assign = do
     many1 (satisfy isAlpha)
     char '='
-    value <- number
-    return $ fromInteger value
+    fromInteger <$> number
 
 star = between (char '<') (char '>') $ sepBy1 assign (string ", ")
 stars = sepBy1 star (char '\n')
@@ -39,14 +38,14 @@ effectOfOne source target = (fst target, zipWith (+) (snd target) (zipWith delta
 delta source target = (fromEnum $ compare source target) - 1
 
 velocity :: Stars -> Stars
-velocity = map (\star -> (zipWith (+) (fst star) (snd star), snd star))
+velocity = map (\star -> (uncurry (zipWith (+)) star, snd star))
 
 step :: Stars -> Stars
 step = velocity . gravity
 
 cycleLength :: Stars -> Int
 cycleLength stars = lcm (lcm (onX stars) (onY stars)) (onZ stars)
-  where coordCycle coord stars = length $ takeWhile (\(one,next) -> not (elem (last next) one)) $ oneAndNext $ inits $ map (map coord) $ iterate step stars
+  where coordCycle coord stars = 1 + (length $ takeWhile (/= map coord stars) $ map (map coord) $ tail $ iterate step stars)
         onX = coordCycle xcoord
         onY = coordCycle ycoord
         onZ = coordCycle zcoord
