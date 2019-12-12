@@ -1,5 +1,6 @@
 module Day12PartOneSpec where
 
+import Day12
 import Day12PartOne hiding (main)
 import Test.Hspec
 
