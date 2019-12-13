@@ -11,7 +11,7 @@ tile 3 = '_'
 tile 4 = 'o'
 tile _ = '.'
 
-type State = ([Int], (Int, Int), Int, Int)
+data State = State { output :: [Int], ballPos :: (Int, Int), paddleX :: Int, ballDir :: Int } deriving Show
 
 states :: Program -> State -> [State]
 states program initial = allStates
@@ -20,22 +20,23 @@ states program initial = allStates
         inputs = map input $ filter relevant allStates
 
 initial :: State
-initial = ([0,0,0], (0, 0), 21, 1)
+initial = State {output=[0,0,0], ballPos=(0, 0), paddleX=21, ballDir=1}
 
-relevant ([x,y,id],_,_,_) = (id == 4)
+relevant state = (id == 4)
+  where [x,y,id] = output state
 
 stepState :: State -> [Int] -> State
-stepState (_, pos@(ballX, ballY), paddleX, ballDir) out@[x,y,id] = case id of
-    3 -> (out, pos, x, ballDir)
-    4 -> (out, (x,y), paddleX, if x > ballX then 1 else -1)
-    _ -> (out, pos, paddleX, ballDir)
+stepState state out@[x,y,id] = case id of
+    3 -> state' {paddleX = x}
+    4 -> state' {ballPos = (x,y), ballDir = if x > ballX then 1 else -1}
+    _ -> state'
+  where (ballX, _) = ballPos state
+        state' = state {output = out}
 
 input :: State -> Integer
-input (_, (ballX, ballY), paddleX, ballDir) = if targetX > paddleX then 1 else if targetX < paddleX then -1 else 0
-  where targetX = ballX + ballDir
-
-getOut :: State -> [Int]
-getOut (out, _, _, _) = out
+input state = if targetX > paddleX state then 1 else if targetX < paddleX state then -1 else 0
+  where targetX = ballX + ballDir state
+        (ballX, _) = ballPos state
 
 main = do
     contents <- readFile "Day13.txt"
@@ -49,20 +50,16 @@ main = do
     setCursorPosition 26 0
     showCursor
 
-screenOutput ([-1, 0, score], _, _, _) = do
+screenOutput State {output = [-1, 0, score]} = do
     setCursorPosition 24 0
     putStrLn $ show score
 
-screenOutput state@([x, y, id], _, _, _) = do
+screenOutput state @ State {output=[x, y, id]} = do
     setCursorPosition y x
     putChar $ tile id
     setCursorPosition 25 0
     putStr $ show state
-
-screenOutputSlow [-1, 0, score] = do
-    setCursorPosition 24 0
-    putStrLn $ show score
     
 wait x = do
     x
-    threadDelay 1000000
+    threadDelay 10000
