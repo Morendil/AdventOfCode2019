@@ -17,10 +17,7 @@ tile _ = '.'
 data State = State {
     output :: [Int],
     tiles :: Tiles,
-    ballPos :: Position,
-    ballDir :: Position,
     predicted :: Position,
-    next :: Maybe Position,
     paddleX :: Int
      } deriving Show
 
@@ -33,64 +30,18 @@ states program initial = allStates
         outputChunks = chunks 3 $ map fromInteger $ outputSequence program inputs
         inputs = map input $ filter relevant allStates
 
--- the predicted ball position is computed manually to avoid having to inject tiles and predicting here
 initial :: State
-initial = State {output=[0,0,0], tiles = Map.empty, ballPos=(19, 18), paddleX=21, ballDir=(1,1), predicted = (21,20), next = Nothing}
+initial = State {output=[0,0,0], tiles = Map.empty, paddleX = 21, predicted = (21, 20)}
 
 add (x1, y1) (x2, y2) = (x1+x2, y1+y2)
-
--- we do the next/predicted shuffle to avoid pushing the joystick *exactly* as the ball bounces
-predictNext :: State -> State
-predictNext state = state {next = Just $ last $ predictPath (ballPos state) (ballDir state) (tiles state)}
-
-predictPath :: Position -> Position -> Tiles -> [Position]
-predictPath pos@(px, py) dir@(vx, vy) tiles = if (hy == 20) && (vy == 1)
-    then finalPath
-    else finalPath ++ (predictPath hitPosition bounceDir tiles)
-  where hitPosition@(hx,hy) = if null projectedPath then pos else add dir $ last $ projectedPath
-        projectedPath = takeWhile (\pos -> pathClear pos dir tiles) $ iterate (add dir) pos
-        finalPath = projectedPath ++ [hitPosition]
-        bounceDir@(bx,by) = whichBounce hitPosition dir tiles
-
-pathClear (px, py) (vx, vy) tiles = clearLeft && clearFwd && clearRight
-  where clearFwd = clear (vx, vy)
-        clearLeft = clear $ left (vx, vy)
-        clearRight = clear $ right (vx, vy)
-        clear (dx, dy) = ((py+dy) < 21) && ((tile == Just 0) || (tile == Just 4))
-          where tile = Map.lookup (px+dx,py+dy) $ tiles
-
-left (1,1) = (1,0)
-left (-1,1) = (0,1)
-left (-1,-1) = (-1,0)
-left (1,-1) = (0,-1)
-
-right (1,1) = (0,1)
-right (-1,1) = (-1,0)
-right (-1,-1) = (0,-1)
-right (1,-1) = (1,0)
-
-whichBounce (px, py) (vx, vy) tiles = if not clearLeft then (-vy, vx) else if not clearRight then (vy,-vx) else (-vx,-vy)
-  where clearFwd = clear (vx, vy)
-        clearLeft = clear $ left (vx, vy)
-        clearRight = clear $ right (vx, vy)
-        clear (dx, dy) = (tile == Just 0) || (tile == Just 4)
-          where tile = Map.lookup (px+dx,py+dy) $ tiles
 
 relevant state = (id == 4)
   where [x,y,id] = output state
 
 stepState :: State -> [Int] -> State
 stepState state out@[x,y,id] = case id of
-    3 -> state' {paddleX = x}
-    -- on observing ball hit paddle we predict all the bounces to the next paddle hit
-    4 -> if y == 20 && vy == 1 then ballBounced else ballMoved
     _ -> state'
-  where (px, py) = ballPos state
-        (vx, vy) = ballDir state
-        state' = state {output = out, tiles = Map.insert (x,y) id $ tiles state}
-        deferred = state' {predicted = fromMaybe (predicted state) (next state), next = Nothing}
-        ballBounced = predictNext $ state' {ballPos = (x+vx, 19), ballDir = (vx, -1)} 
-        ballMoved = deferred {ballPos = (x,y), ballDir = (if x>px then 1 else -1, if y>py then 1 else -1)}
+  where state' = state {output = out, tiles = Map.insert (x,y) id $ tiles state}
 
 input :: State -> Integer
 input state = if targetX > paddleX state then 1 else if targetX < paddleX state then -1 else 0
@@ -125,4 +76,4 @@ screenOutput state @ State {output=[x, y, id]} = do
     
 wait x = do
     x
-    threadDelay 1000000
+    threadDelay 10000
