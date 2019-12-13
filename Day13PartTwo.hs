@@ -41,32 +41,35 @@ add (x1, y1) (x2, y2) = (x1+x2, y1+y2)
 
 -- we do the next/predicted shuffle to avoid pushing the joystick *exactly* as the ball bounces
 predictNext :: State -> State
-predictNext state = error $ show (ballPos state, ballDir state, predictPath (ballPos state) (ballDir state) (tiles state))
-    -- state {next = Just $ last $ predictPath (ballPos state) (ballDir state) (tiles state)}
+predictNext state = state {next = Just $ last $ predictPath (ballPos state) (ballDir state) (tiles state)}
 
 predictPath :: Position -> Position -> Tiles -> [Position]
 predictPath pos@(px, py) dir@(vx, vy) tiles = if (hy == 20) && (vy == 1)
     then finalPath
-    else finalPath ++ tail (predictPath hitPosition bounceDir tiles)
+    else finalPath ++ (predictPath hitPosition bounceDir tiles)
   where hitPosition@(hx,hy) = if null projectedPath then pos else add dir $ last $ projectedPath
         projectedPath = takeWhile (\pos -> pathClear pos dir tiles) $ iterate (add dir) pos
         finalPath = projectedPath ++ [hitPosition]
-        bounceDir@(bx,by) = whichBounce pos dir tiles
+        bounceDir@(bx,by) = whichBounce hitPosition dir tiles
 
 pathClear (px, py) (vx, vy) tiles = clearLeft && clearFwd && clearRight
   where clearFwd = clear (vx, vy)
         clearLeft = clear $ left (vx, vy)
         clearRight = clear $ right (vx, vy)
-        clear (dx, dy) = ((py+dy) <= 21) && ((tile == Just 0) || (tile == Just 4))
+        clear (dx, dy) = ((py+dy) < 21) && ((tile == Just 0) || (tile == Just 4))
           where tile = Map.lookup (px+dx,py+dy) $ tiles
 
 left (1,1) = (1,0)
 left (-1,1) = (0,1)
 left (-1,-1) = (-1,0)
 left (1,-1) = (0,-1)
-right = swap . left
 
-whichBounce (px, py) (vx, vy) tiles = if not clearLeft then (-vy, vx) else if not clearFwd then (-vx,-vy) else (vy,-vx)
+right (1,1) = (0,1)
+right (-1,1) = (-1,0)
+right (-1,-1) = (0,-1)
+right (1,-1) = (1,0)
+
+whichBounce (px, py) (vx, vy) tiles = if not clearLeft then (-vy, vx) else if not clearRight then (vy,-vx) else (-vx,-vy)
   where clearFwd = clear (vx, vy)
         clearLeft = clear $ left (vx, vy)
         clearRight = clear $ right (vx, vy)
