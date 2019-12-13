@@ -35,4 +35,5 @@ executable AdventOfCode2019
         QuickCheck -any,
         astar -any,
         mtl -any,
-        MemoTrie -any
+        MemoTrie -any,
+        maximal-cliques -any
