@@ -17,8 +17,8 @@ tile _ = '.'
 data State = State {
     output :: [Int],
     tiles :: Tiles,
-    predicted :: Position,
-    paddleX :: Int
+    paddleX :: Int,
+    joystick :: Integer
      } deriving Show
 
 type Position = (Int, Int)
@@ -31,7 +31,7 @@ states program initial = allStates
         inputs = map input $ filter relevant allStates
 
 initial :: State
-initial = State {output=[0,0,0], tiles = Map.empty, paddleX = 21, predicted = (21, 20)}
+initial = State {output=[0,0,0], tiles = Map.empty, paddleX = 21, joystick = 0}
 
 add (x1, y1) (x2, y2) = (x1+x2, y1+y2)
 
@@ -40,12 +40,14 @@ relevant state = (id == 4)
 
 stepState :: State -> [Int] -> State
 stepState state out@[x,y,id] = case id of
+    3 -> state' { paddleX = x}
+    4 -> state' { joystick = if x > px then 1 else if x < px then -1 else 0}
     _ -> state'
   where state' = state {output = out, tiles = Map.insert (x,y) id $ tiles state}
+        px = paddleX state
 
 input :: State -> Integer
-input state = if targetX > paddleX state then 1 else if targetX < paddleX state then -1 else 0
-  where (targetX, targetY) = predicted state
+input state = joystick state
 
 display :: Tiles -> [String]
 display tiles = [[at x y | x <- [0..42]] | y <- [0..22]]
