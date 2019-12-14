@@ -61,21 +61,15 @@ main = do
     hideCursor
     setCursorPosition 0 0
     putStr $ unlines $ display $ tiles $ last $ take ((23*43)+1) output
-    threadDelay 500000
-    mapM (wait . screenOutput) $ drop ((23*43)+1) output
+    mapM screenOutput $ drop ((23*43)+1) output
     setCursorPosition 26 0
     showCursor
 
 screenOutput State {output = [-1, 0, score]} = do
     setCursorPosition 24 0
-    putStrLn $ show score
+    putStr $ show score
 
 screenOutput state @ State {output=[x, y, id]} = do
     setCursorPosition y x
     putChar $ tile id
     setCursorPosition 25 0
-    putStr $ show $ state {tiles = Map.empty}
-    
-wait x = do
-    x
-    threadDelay 10000
