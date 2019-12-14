@@ -4,6 +4,7 @@ import Data.Char
 import Data.List
 import Data.Ord
 import Text.ParserCombinators.ReadP
+import Data.Eq.HT
 
 readInt :: String -> Integer
 readInt = read
@@ -30,7 +31,8 @@ oneAndNext :: [a] -> [(a,a)]
 oneAndNext sequence = zip sequence (tail sequence)
 
 untilStable :: Eq a => [a] -> a
-untilStable = snd . last . takeWhile notSame . oneAndNext
+untilStable seq = if null pairs then head seq else snd $ last pairs
+  where pairs = takeWhile notSame $ oneAndNext seq
 
 replace :: Int -> a -> [a] -> [a]
 replace n x xs = (take n xs) ++ [x] ++ (drop (n+1) xs)
@@ -43,3 +45,5 @@ sortOrder f list = map fst $ sortBy (\x y -> f (snd x) (snd y)) $ indexed list
 
 indexed :: [a] -> [(Int, a)]
 indexed list = zip [0..(length list)] list
+
+partitionOn f = (groupBy $ equating f) . (sortBy $ comparing f)
