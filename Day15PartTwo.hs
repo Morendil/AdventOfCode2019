@@ -13,7 +13,7 @@ data State = State {
     tiles :: Tiles,
     explored :: Marks,
     command :: Integer,
-    times :: Times
+    oxygen :: Position
     } deriving Show
 
 type Position = (Int, Int)
@@ -31,7 +31,7 @@ center :: Tiles
 center = Map.insert (0,0) 'x' Map.empty
 
 initial :: State
-initial = State {position=(0,0), tiles = center, explored = Map.empty, command = 1, times = Map.insert (0,0) 0 Map.empty}
+initial = State {position=(0,0), tiles = center, explored = Map.empty, command = 1, oxygen = (0,0)}
 
 commands = [1,4,3,2]
 
@@ -48,7 +48,8 @@ go pos cmd = add pos (offset cmd)
 stepState :: State -> Int -> State
 stepState state out = case out of
     0 -> state' { tiles = Map.insert pos' '#' map, command = moveOn pos}
-    _ -> state' { tiles = Map.insert pos' '.' map, position = pos', command = moveOn pos', times = times'}
+    1 -> state' { tiles = Map.insert pos' '.' map, position = pos', command = moveOn pos'}
+    2 -> state' { tiles = Map.insert pos' '.' map, position = pos', command = moveOn pos', oxygen = pos'}
   where pos = position state
         pos' = go pos cmd
         cmd = command state
@@ -59,15 +60,11 @@ stepState state out = case out of
         breadcrumbs pos = commands \\ alreadyExplored state' pos
         backtrack pos = if null $ breadcrumbs pos then -1 else head $ breadcrumbs pos
         moveOn pos = if null $ possibles pos then backtrack pos else head $ possibles pos
-        timeTo pos = fromMaybe 999 $ Map.lookup pos (times state)
-        times' = if timeTo pos' > ((timeTo pos)+1) then Map.insert pos' ((timeTo pos)+1) (times state) else (times state)
         exploring pos cmd = isNothing $ Map.lookup (go pos cmd) (tiles state)
 
 display :: State -> [String]
 display state = [[tile x y | x <- [minx..maxx]] | y <- [miny..maxy]]
-  where tile x y = if ((floor x y) == '.') && (time x y > 70) then last $ show (time x y) else floor x y
-        floor x y = fromMaybe ' ' $ Map.lookup (x,y) (tiles state)
-        time x y = fromJust $ Map.lookup (x,y) (times state)
+  where tile x y = fromMaybe ' ' $ Map.lookup (x,y) (tiles state)
         minx = minimum $ xs
         maxx = maximum $ xs
         miny = minimum $ ys
@@ -80,12 +77,19 @@ main = do
     contents <- readFile "Day15.txt"
     let program = parse contents
     let output = states program initial
-    hideCursor
-    clearScreen
     let final = last output
-    toAscii final
-    showCursor
-    print $ maximum $ Map.elems $ times $ last output
+    print $ maximum $ Map.elems $ spread (tiles final) (-18, -18) (Map.insert (-18,-18) 0 Map.empty)
+
+offsets = [(0,1),(0,-1),(1,0),(-1,0)]
+from pos = map (add pos) offsets
+
+spread ::  Tiles -> Position -> Times -> Times
+spread tiles pos times = if null next then times else foldr stepTime times next
+  where stepTime pos' times = spread tiles pos' (Map.insert pos' ((time pos)+1) times)
+        next = filter (\adjacent -> blank adjacent && floor adjacent) (from pos)
+        blank pos = isNothing $ Map.lookup pos times
+        floor pos = Map.lookup pos tiles == Just '.'
+        time pos = fromJust $ Map.lookup pos times
 
 toAscii state = do
     setCursorPosition 0 0
