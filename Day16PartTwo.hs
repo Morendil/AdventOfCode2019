@@ -4,10 +4,10 @@ import Common
 import Data.Char
 
 fft :: Int -> Int -> String -> String
-fft phases repeats input = represent $ (iterate step (process repeats input)) !! phases
+fft phases repeats input = represent (process 1 input) $ (iterate step (process repeats input)) !! phases
 
-represent :: [Int] -> String
-represent signal = take 8 $ map intToDigit $ drop (offset signal) signal
+represent :: [Int] -> [Int] -> String
+represent original signal = take 8 $ map intToDigit $ drop (offset original) signal
 
 offset :: [Int] -> Int
 offset signal = read (map intToDigit $ take 7 signal)
