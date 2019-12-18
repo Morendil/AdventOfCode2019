@@ -46,8 +46,8 @@ cquad _ _ = 0
 
 cost :: Distances -> Char -> Char -> Int
 cost tree one two = (go d1 d2) + (correct (coords $ last d1) (coords $ last d2))
-  where d1 = descendTo one tree
-        d2 = descendTo two tree
+  where d1 = descendTo tree one
+        d2 = descendTo tree two
         correct :: Position -> Position -> Int
         correct d1 d2 = cquad (quad d1) (quad d2)
         go a [] = sum $ map cost a
@@ -57,8 +57,8 @@ cost tree one two = (go d1 d2) + (correct (coords $ last d1) (coords $ last d2))
         cost (key, pos, dist) = dist
         coords (key, pos, dist) = pos
 
-descendTo :: Char -> Distances -> [Point]
-descendTo target tree = foldTree findPath tree
+descendTo :: Distances -> Char -> [Point]
+descendTo tree target = foldTree findPath tree
   where findPath :: Point -> [[Point]] -> [Point]
         findPath label@(key,_,_) paths | key == target = [label]
         findPath label@(key,_,_) paths = if null prefix then [] else label : (head prefix)
