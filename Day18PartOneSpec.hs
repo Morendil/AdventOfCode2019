@@ -10,3 +10,5 @@ main = do
         describe "Many-Worlds Interpretation" $ do
             it "Should parse the maze to a tree" $ do
                 (levels $ toTree sample1) `shouldBe` [[('@',0)],[('A',2),('a',2)],[('b',2)]]
+            it "Should cost the maze" $ do
+                (cost $ toTree sample1) `shouldBe` 8

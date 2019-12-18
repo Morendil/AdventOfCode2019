@@ -12,6 +12,20 @@ type Visited = Map.HashMap Position Int
 type Distances = Tree (Char, Int)
 type Goals = [((Int,Int), Int)]
 
+cost :: Distances -> Int
+cost tree = costWithKeys [] tree
+
+costWithKeys :: [Char] -> Distances -> Int
+costWithKeys keys tree = 0
+
+allKeys :: Distances -> [Char]
+allKeys tree = sort $ foldTree collectKeys tree
+  where collectKeys (key,_) keys = if isLower key then key:(concat keys) else (concat keys)
+
+-- which of the reachable subgoals are either keys or doors I can open
+pruneByKeys :: [Char] -> Distances -> Char
+pruneByKeys keys tree = undefined
+
 toTree :: String -> Distances
 toTree maze = unfoldTree (visit $ lines maze) (start maze, 0, Map.empty)
     -- Node {rootLabel = ('@',0), subForest = []}
