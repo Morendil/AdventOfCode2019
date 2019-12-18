@@ -43,8 +43,19 @@ toTree maze = unfoldTree (visit $ lines maze) (start maze, 0, Map.empty)
     -- Node {rootLabel = ('@',0), subForest = []}
 
 visit :: [String] -> (Position, Int, Visited) -> ((Char, Int), [(Position, Int, Visited)])
-visit tiles (pos, distance, visited) = ((at tiles pos, distance), [(p, dist, visited') | (p,dist) <- reached])
-    where (visited', reached) = spread tiles visited [] pos 0
+visit tiles (pos, distance, visited) = ((at tiles pos, distance), explore tiles visited pos 0)
+
+explore :: [String] -> Visited -> Position -> Int -> [(Position, Int, Visited)]
+explore tiles visited pos distance = if length next == 1 && all boring next
+    -- if the path does not branch, then keep track of distance but do not report
+    then explore tiles visited' (head next) (distance + 1)
+    else [(pos', distance+1, visited'') | pos' <- next]
+  where visited' = Map.insert pos distance visited
+        visited'' = foldr (\p v -> Map.insert p (distance+1) v) visited' next
+        next = filter (\adjacent -> unknown adjacent && floor adjacent) (from pos)
+        unknown pos = isNothing $ Map.lookup pos visited
+        floor pos = at tiles pos /= '#'
+        boring pos = at tiles pos == '.'
 
 at :: [String] -> Position -> Char
 at tiles (x,y) = (tiles !! y) !! x
@@ -55,17 +66,6 @@ start maze = head $ concatMap (\(y, line) -> [(x,y) | x <- findIndices (== '@') 
 add (x1, y1) (x2, y2) = (x1+x2, y1+y2)
 offsets = [(0,1),(0,-1),(1,0),(-1,0)]
 from pos = map (add pos) offsets
-
-spread ::  [String] -> Visited -> Goals -> Position -> Int -> (Visited, Goals)
-spread tiles visited reached pos time = if null next then (visited', goals) else foldr stepTime (Map.insert pos time visited', goals) next
-  where stepTime pos' (visited, reached) = merge (visited, reached) $ spread tiles (Map.insert pos' (time+1) visited) reached pos' (time+1)
-        visited' = visit (time+1) visited goals
-        merge (v,r) (v',r') = (v', r++r')
-        next = filter (\adjacent -> blank adjacent && floor adjacent) (from pos)
-        visit time visited = foldr (\pos visited -> Map.insert pos time visited) visited . map fst
-        goals = [(p, time+1) | p <- filter (isAlpha . at tiles) $ filter blank $ from pos]
-        blank pos = isNothing $ Map.lookup pos visited
-        floor pos = at tiles pos == '.'
 
 main = do
     contents <- readFile "Day18.txt"
