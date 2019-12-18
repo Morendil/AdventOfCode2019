@@ -20,3 +20,11 @@ main = do
                 (allKeys $ toTree sample3) `shouldBe` "abcdefg"
                 (allKeys $ toTree sample4) `shouldBe` "abcdefghijklmnop"
                 (allKeys $ toTree sample5) `shouldBe` "abcdefghi"
+            it "Should list final keys" $ do
+                (finalKeys $ toTree sample1) `shouldBe` "ab"
+                (finalKeys $ toTree sample2) `shouldBe` "df"
+                (finalKeys $ toTree sample3) `shouldBe` "fg"
+                (finalKeys $ toTree sample4) `shouldBe` "ijklmnop"
+                (finalKeys $ toTree sample5) `shouldBe` "bghi"
+            -- it "Should compute cost for a permutation" $ do
+            --     (costFor "igbh" $ toTree sample5) `shouldBe` 136

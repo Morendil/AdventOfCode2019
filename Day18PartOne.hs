@@ -13,18 +13,30 @@ type Distances = Tree (Char, Int)
 type Goals = [((Int,Int), Int)]
 
 cost :: Distances -> Int
-cost tree = costWithKeys [] tree
+cost tree = 0
 
-costWithKeys :: [Char] -> Distances -> Int
-costWithKeys keys tree = 0
+fullPath tree order = nub $ concatMap (\k-> pathTo k tree) order
+heuristic tree = fullPath tree $ sortOn (\k->length $ pathTo k tree) (finalKeys tree)
+
+pathTo :: Char -> Distances -> [Char]
+pathTo target tree = nub $ foldTree findPath tree
+  where findPath :: (Char, Int) -> [[Char]] -> [Char]
+        findPath (key,_) paths | key == target = [key]
+        findPath (key,_) paths | isLower key = if null prefix then [] else key : (head prefix)
+          where prefix = filter (not.null) paths
+        findPath (key,_) paths | isUpper key = if null prefix then [] else (pathTo (toLower key) tree) ++ (head prefix)
+          where prefix = filter (not.null) paths
+        findPath (key,_) paths = if null prefix then [] else head prefix
+          where prefix = filter (not.null) paths
 
 allKeys :: Distances -> [Char]
 allKeys tree = sort $ foldTree collectKeys tree
   where collectKeys (key,_) keys = if isLower key then key:(concat keys) else (concat keys)
 
--- which of the reachable subgoals are either keys or doors I can open
-pruneByKeys :: [Char] -> Distances -> Char
-pruneByKeys keys tree = undefined
+finalKeys :: Distances -> [Char]
+finalKeys tree = sort $ foldTree collectKeys tree
+  where collectKeys (key,_) [] = if isLower key then [key] else []
+        collectKeys (key,_) xs = concat xs
 
 toTree :: String -> Distances
 toTree maze = unfoldTree (visit $ lines maze) (start maze, 0, Map.empty)
