@@ -70,7 +70,7 @@ initialKeys tree = nub $ sort $ foldTree collectKeys tree
         collectKeys (key,_,_) xs = concat xs
 
 simplify :: Distances -> Distances
-simplify = undefined foldTree coalesce
+simplify = foldTree coalesce
   where coalesce :: Point -> [Tree Point] -> Tree Point
         coalesce label@('.',_,cost) [(Node (key,pos,cost') trees)] = Node (key,pos,cost+cost') trees
         coalesce label forest = Node label (filter (not.boring) forest)
