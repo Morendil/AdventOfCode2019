@@ -16,8 +16,8 @@ type Distances = Tree Point
 type Goals = [((Int,Int), Int)]
 
 fullPath tree order = "@" ++ quasiPath tree order
-quasiPath tree order = nub $ concatMap (\k-> pathTo k tree) order
-heuristic tree = fullPath tree $ sortOn (\k->length $ pathTo k tree) (finalKeys tree)
+quasiPath tree order = nub $ concatMap (pathTo tree) order
+heuristic tree = fullPath tree $ sortOn (length . pathTo tree) (finalKeys tree)
 
 bestPath :: Distances -> [Char]
 bestPath tree = minimumBy (comparing (\p -> costOf tree p)) $ map (\p -> fullPath tree p) $ permutations $ finalKeys tree
@@ -64,13 +64,13 @@ descendTo target tree = foldTree findPath tree
         findPath label@(key,_,_) paths = if null prefix then [] else label : (head prefix)
           where prefix = filter (not.null) paths
 
-pathTo :: Char -> Distances -> [Char]
-pathTo target tree = nub $ foldTree findPath tree
+pathTo :: Distances -> Char -> [Char]
+pathTo tree target = nub $ foldTree findPath tree
   where findPath :: Point -> [[Char]] -> [Char]
         findPath (key,_,_) paths | key == target = [key]
         findPath (key,_,_) paths | isLower key = if null prefix then [] else key : (head prefix)
           where prefix = filter (not.null) paths
-        findPath (key,_,_) paths | isUpper key = if null prefix then [] else (pathTo (toLower key) tree) ++ (head prefix)
+        findPath (key,_,_) paths | isUpper key = if null prefix then [] else (pathTo tree (toLower key)) ++ (head prefix)
           where prefix = filter (not.null) paths
         findPath (key,_,_) paths = if null prefix then [] else head prefix
           where prefix = filter (not.null) paths
