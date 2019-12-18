@@ -28,13 +28,34 @@ bestCost tree = minimum $ map (\p -> costOf tree $ fullPath tree p) $ permutatio
 costOf :: Distances-> [Char] -> Int
 costOf tree order = sum $ map (uncurry (cost tree)) $ oneAndNext $ order
 
+data Quadrant = C | UL | LL | UR | LR deriving (Eq, Show)
+quad (x,y) = if x == 40 && y == 40
+        then C
+        else if y < 40 && y < 40 then UL
+        else if x > 40 && y < 40 then UR
+        else if x > 40 && y > 40 then LR
+        else LL
+
+cquad C C = 0
+cquad UR LR = -2
+cquad LR UR = -2
+cquad UL LL = -2
+cquad LL UL = -2
+cquad _ _ = 0
+
+
 cost :: Distances -> Char -> Char -> Int
-cost tree one two = go (descendTo one tree) (descendTo two tree)
-  where go a [] = sum $ map cost a
+cost tree one two = (go d1 d2) + (correct (coords $ last d1) (coords $ last d2))
+  where d1 = descendTo one tree
+        d2 = descendTo two tree
+        correct :: Position -> Position -> Int
+        correct d1 d2 = cquad (quad d1) (quad d2)
+        go a [] = sum $ map cost a
         go [] b = sum $ map cost b
         go a b | head a == head b = go (tail a) (tail b)
         go a b = (go a []) + (go [] b)
         cost (key, pos, dist) = dist
+        coords (key, pos, dist) = pos
 
 descendTo :: Char -> Distances -> [Point]
 descendTo target tree = foldTree findPath tree
