@@ -13,7 +13,7 @@ main = do
     hspec $
         describe "Many-Worlds Interpretation" $ do
             it "Should parse the maze to a tree" $ do
-                (levels $ toTree sample1) `shouldBe` [[('@',0)],[('A',2),('a',2)],[('b',2)]]
+                (levels $ fmap strip $ toTree sample1) `shouldBe` [[('@',0)],[('.',1),('.',1)],[('a',1),('A',1)],[('.',1)],[('b',1)]]
             it "Should list all keys" $ do
                 (allKeys $ toTree sample1) `shouldBe` "ab"
                 (allKeys $ toTree sample2) `shouldBe` "abcdef"
@@ -26,5 +26,13 @@ main = do
                 (finalKeys $ toTree sample3) `shouldBe` "fg"
                 (finalKeys $ toTree sample4) `shouldBe` "ijklmnop"
                 (finalKeys $ toTree sample5) `shouldBe` "bghi"
-            -- it "Should compute cost for a permutation" $ do
-            --     (costFor "igbh" $ toTree sample5) `shouldBe` 136
+            it "Should compute costs" $ do
+                (cost (toTree sample1) '@' 'a') `shouldBe` 2
+                (cost (toTree sample1) 'a' 'b') `shouldBe` 6
+            it "Should get the examples right" $ do
+                -- these pass with the heuristic
+                (bestCost $ toTree sample1) `shouldBe` 8
+                (bestCost $ toTree sample2) `shouldBe` 86
+                (bestCost $ toTree sample3) `shouldBe` 132
+                (bestCost $ toTree sample5) `shouldBe` 81
+                -- (bestCost $ toTree sample4) `shouldBe` 136

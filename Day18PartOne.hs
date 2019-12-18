@@ -9,47 +9,69 @@ import qualified Data.HashMap.Strict as Map
 
 type Position = (Int, Int)
 type Visited = Map.HashMap Position Int
-type Distances = Tree (Char, Int)
+type Point = (Char,  Position, Int)
+type Distances = Tree Point
 type Goals = [((Int,Int), Int)]
 
-cost :: Distances -> Int
-cost tree = 0
-
-fullPath tree order = nub $ concatMap (\k-> pathTo k tree) order
+fullPath tree order = "@" ++ (nub $ concatMap (\k-> pathTo k tree) order)
 heuristic tree = fullPath tree $ sortOn (\k->length $ pathTo k tree) (finalKeys tree)
+
+bestCost :: Distances -> Int
+bestCost tree = minimum $ map (\p -> costOf tree $ fullPath tree p) $ permutations $ finalKeys $ tree
+
+costOf :: Distances-> [Char] -> Int
+costOf tree order = sum $ map (uncurry (cost tree)) $ oneAndNext $ order
+
+cost :: Distances -> Char -> Char -> Int
+cost tree one two = go (descendTo one tree) (descendTo two tree)
+  where go a [] = sum $ map cost a
+        go [] b = sum $ map cost b
+        go a b | head a == head b = go (tail a) (tail b)
+        go a b = (go a []) + (go [] b)
+        cost (key, pos, dist) = dist
+
+descendTo :: Char -> Distances -> [Point]
+descendTo target tree = foldTree findPath tree
+  where findPath :: Point -> [[Point]] -> [Point]
+        findPath label@(key,_,_) paths | key == target = [label]
+        findPath label@(key,_,_) paths = if null prefix then [] else label : (head prefix)
+          where prefix = filter (not.null) paths
 
 pathTo :: Char -> Distances -> [Char]
 pathTo target tree = nub $ foldTree findPath tree
-  where findPath :: (Char, Int) -> [[Char]] -> [Char]
-        findPath (key,_) paths | key == target = [key]
-        findPath (key,_) paths | isLower key = if null prefix then [] else key : (head prefix)
+  where findPath :: Point -> [[Char]] -> [Char]
+        findPath (key,_,_) paths | key == target = [key]
+        findPath (key,_,_) paths | isLower key = if null prefix then [] else key : (head prefix)
           where prefix = filter (not.null) paths
-        findPath (key,_) paths | isUpper key = if null prefix then [] else (pathTo (toLower key) tree) ++ (head prefix)
+        findPath (key,_,_) paths | isUpper key = if null prefix then [] else (pathTo (toLower key) tree) ++ (head prefix)
           where prefix = filter (not.null) paths
-        findPath (key,_) paths = if null prefix then [] else head prefix
+        findPath (key,_,_) paths = if null prefix then [] else head prefix
           where prefix = filter (not.null) paths
 
 allKeys :: Distances -> [Char]
 allKeys tree = sort $ foldTree collectKeys tree
-  where collectKeys (key,_) keys = if isLower key then key:(concat keys) else (concat keys)
+  where collectKeys (key,_,_) keys = if isLower key then key:(concat keys) else (concat keys)
 
 finalKeys :: Distances -> [Char]
-finalKeys tree = sort $ foldTree collectKeys tree
-  where collectKeys (key,_) [] = if isLower key then [key] else []
-        collectKeys (key,_) xs = concat xs
+finalKeys tree = nub $ sort $ foldTree collectKeys tree
+  where collectKeys (key,_,_) [] = if isLower key then [key] else []
+        collectKeys (key,_,_) xs = concat xs
+
+initialKeys :: Distances -> [Char]
+initialKeys tree = nub $ sort $ foldTree collectKeys tree
+  where collectKeys (key,_,_) _ | isLower key = [key]
+        collectKeys (key,_,_) xs = concat xs
 
 toTree :: String -> Distances
 toTree maze = unfoldTree (visit $ lines maze) (start maze, 0, Map.empty)
-    -- Node {rootLabel = ('@',0), subForest = []}
 
-visit :: [String] -> (Position, Int, Visited) -> ((Char, Int), [(Position, Int, Visited)])
-visit tiles (pos, distance, visited) = ((at tiles pos, distance), explore tiles visited pos 0)
+strip (char, pos, dist) = (char, dist)
+
+visit :: [String] -> (Position, Int, Visited) -> ((Char, Position, Int), [(Position, Int, Visited)])
+visit tiles (pos, distance, visited) = ((at tiles pos, pos, distance), explore tiles visited pos 0)
 
 explore :: [String] -> Visited -> Position -> Int -> [(Position, Int, Visited)]
-explore tiles visited pos distance = if length next == 1 && all boring next
-    -- if the path does not branch, then keep track of distance but do not report
-    then explore tiles visited' (head next) (distance + 1)
-    else [(pos', distance+1, visited'') | pos' <- next]
+explore tiles visited pos distance = [(pos', distance+1, visited'') | pos' <- next]
   where visited' = Map.insert pos distance visited
         visited'' = foldr (\p v -> Map.insert p (distance+1) v) visited' next
         next = filter (\adjacent -> unknown adjacent && floor adjacent) (from pos)
