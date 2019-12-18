@@ -31,7 +31,7 @@ costOf tree order = sum $ map (uncurry (cost tree)) $ oneAndNext $ order
 data Quadrant = C | UL | LL | UR | LR deriving (Eq, Show)
 quad (x,y) = if x == 40 && y == 40
         then C
-        else if y < 40 && y < 40 then UL
+        else if x < 40 && y < 40 then UL
         else if x > 40 && y < 40 then UR
         else if x > 40 && y > 40 then LR
         else LL
