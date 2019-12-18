@@ -13,7 +13,7 @@ main = do
     hspec $
         describe "Many-Worlds Interpretation" $ do
             it "Should parse the maze to a tree" $ do
-                (levels $ fmap strip $ toTree sample1) `shouldBe` [[('@',0)],[('.',1),('.',1)],[('a',1),('A',1)],[('.',1)],[('b',1)]]
+                (levels $ fmap strip $ toTree sample1) `shouldBe` [[('@',0)],[('a',2),('A',2)],[('b',2)]]
             it "Should list all keys" $ do
                 (allKeys $ toTree sample1) `shouldBe` "ab"
                 (allKeys $ toTree sample2) `shouldBe` "abcdef"

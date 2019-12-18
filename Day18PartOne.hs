@@ -4,6 +4,7 @@ import Common
 import Data.List
 import Data.Tree
 import Data.Char
+import Data.Ord
 import Data.Maybe
 import qualified Data.HashMap.Strict as Map
 
@@ -16,8 +17,11 @@ type Goals = [((Int,Int), Int)]
 fullPath tree order = "@" ++ (nub $ concatMap (\k-> pathTo k tree) order)
 heuristic tree = fullPath tree $ sortOn (\k->length $ pathTo k tree) (finalKeys tree)
 
+bestPath :: Distances -> [Char]
+bestPath tree = minimumBy (comparing (\p -> costOf tree p)) $ map (\p -> fullPath tree p) $ permutations $ finalKeys tree
+
 bestCost :: Distances -> Int
-bestCost tree = minimum $ map (\p -> costOf tree $ fullPath tree p) $ permutations $ finalKeys $ tree
+bestCost tree = minimum $ map (\p -> costOf tree $ fullPath tree p) $ permutations $ finalKeys tree
 
 costOf :: Distances-> [Char] -> Int
 costOf tree order = sum $ map (uncurry (cost tree)) $ oneAndNext $ order
@@ -49,7 +53,7 @@ pathTo target tree = nub $ foldTree findPath tree
           where prefix = filter (not.null) paths
 
 allKeys :: Distances -> [Char]
-allKeys tree = sort $ foldTree collectKeys tree
+allKeys tree = nub $ sort $ foldTree collectKeys tree
   where collectKeys (key,_,_) keys = if isLower key then key:(concat keys) else (concat keys)
 
 finalKeys :: Distances -> [Char]
@@ -63,7 +67,13 @@ initialKeys tree = nub $ sort $ foldTree collectKeys tree
         collectKeys (key,_,_) xs = concat xs
 
 toTree :: String -> Distances
-toTree maze = unfoldTree (visit $ lines maze) (start maze, 0, Map.empty)
+toTree maze = simplify $ unfoldTree (visit $ lines maze) (start maze, 0, Map.empty)
+
+simplify :: Distances -> Distances
+simplify = foldTree coalesce
+  where coalesce :: Point -> [Tree Point] -> Tree Point
+        coalesce label@('.',_,cost) [(Node (key,pos,cost') trees)] = Node (key,pos,cost+cost') trees
+        coalesce label forest = Node label forest
 
 strip (char, pos, dist) = (char, dist)
 
