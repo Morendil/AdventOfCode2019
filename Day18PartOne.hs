@@ -73,7 +73,13 @@ simplify :: Distances -> Distances
 simplify = foldTree coalesce
   where coalesce :: Point -> [Tree Point] -> Tree Point
         coalesce label@('.',_,cost) [(Node (key,pos,cost') trees)] = Node (key,pos,cost+cost') trees
-        coalesce label forest = Node label forest
+        coalesce label forest = Node label (filter (not.boring) forest)
+
+
+boring :: Distances -> Bool
+boring = foldTree isBoring
+  where isBoring ('.',_,_) [] = True
+        isBoring _ _ = False
 
 strip (char, pos, dist) = (char, dist)
 
@@ -101,4 +107,4 @@ from pos = map (add pos) offsets
 
 main = do
     contents <- readFile "Day18.txt"
-    print $ start contents
+    putStrLn $ drawTree $ fmap show $ fmap strip $ simplify $ toTree contents
