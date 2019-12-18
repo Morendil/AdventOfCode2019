@@ -14,7 +14,8 @@ type Point = (Char,  Position, Int)
 type Distances = Tree Point
 type Goals = [((Int,Int), Int)]
 
-fullPath tree order = "@" ++ (nub $ concatMap (\k-> pathTo k tree) order)
+fullPath tree order = "@" ++ quasiPath tree order
+quasiPath tree order = nub $ concatMap (\k-> pathTo k tree) order
 heuristic tree = fullPath tree $ sortOn (\k->length $ pathTo k tree) (finalKeys tree)
 
 bestPath :: Distances -> [Char]
