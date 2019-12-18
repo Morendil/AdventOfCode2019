@@ -6,6 +6,7 @@ import Data.Tree
 import Data.Char
 import Data.Ord
 import Data.Maybe
+import Control.Monad.State
 import qualified Data.HashMap.Strict as Map
 
 type Position = (Int, Int)
@@ -65,17 +66,14 @@ finalKeys tree = nub $ sort $ foldTree collectKeys tree
 initialKeys :: Distances -> [Char]
 initialKeys tree = nub $ sort $ foldTree collectKeys tree
   where collectKeys (key,_,_) _ | isLower key = [key]
+        collectKeys (key,_,_) _ | isUpper key = []
         collectKeys (key,_,_) xs = concat xs
 
-toTree :: String -> Distances
-toTree maze = simplify $ unfoldTree (visit $ lines maze) (start maze, 0, Map.empty)
-
 simplify :: Distances -> Distances
-simplify = foldTree coalesce
+simplify = undefined foldTree coalesce
   where coalesce :: Point -> [Tree Point] -> Tree Point
         coalesce label@('.',_,cost) [(Node (key,pos,cost') trees)] = Node (key,pos,cost+cost') trees
         coalesce label forest = Node label (filter (not.boring) forest)
-
 
 boring :: Distances -> Bool
 boring = foldTree isBoring
@@ -84,16 +82,27 @@ boring = foldTree isBoring
 
 strip (char, pos, dist) = (char, dist)
 
-visit :: [String] -> (Position, Int, Visited) -> ((Char, Position, Int), [(Position, Int, Visited)])
-visit tiles (pos, distance, visited) = ((at tiles pos, pos, distance), explore tiles visited pos 0)
+toTree :: String -> Distances
+toTree maze = simplify $ evalState unfoldWithState Map.empty
+  where unfoldWithState :: State Visited Distances
+        unfoldWithState = (unfoldTreeM (visit $ lines maze) (start maze, 0)) 
 
-explore :: [String] -> Visited -> Position -> Int -> [(Position, Int, Visited)]
-explore tiles visited pos distance = [(pos', distance+1, visited'') | pos' <- next]
-  where visited' = Map.insert pos distance visited
-        visited'' = foldr (\p v -> Map.insert p (distance+1) v) visited' next
-        next = filter (\adjacent -> unknown adjacent && floor adjacent) (from pos)
+visit :: [String] -> (Position, Int) -> State Visited (Point, [(Position, Int)])
+visit tiles (pos, distance) = do
+    explored <- explore tiles pos 0
+    return $ ((at tiles pos, pos, distance), explored)
+
+explore :: [String] -> Position -> Int -> State Visited [(Position, Int)]
+explore tiles pos distance = do
+    visited <- get
+    let next = filter (\adjacent -> unknown adjacent && floor adjacent) (from pos)
         unknown pos = isNothing $ Map.lookup pos visited
-        floor pos = at tiles pos /= '#'
+        visited' = Map.insert pos distance visited
+        visited'' = foldr (\p v -> Map.insert p (distance+1) v) visited' next
+        result = [(pos', distance+1) | pos' <- next]
+    put visited''
+    return result
+  where floor pos = at tiles pos /= '#'
         boring pos = at tiles pos == '.'
 
 at :: [String] -> Position -> Char
