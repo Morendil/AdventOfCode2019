@@ -99,6 +99,7 @@ simplify = foldTree coalesce
 boring :: Distances -> Bool
 boring = foldTree isBoring
   where isBoring ('.',_,_) [] = True
+        isBoring (key,_,_) [] | isUpper key = True
         isBoring _ _ = False
 
 strip (char, pos, dist) = (char, dist)
