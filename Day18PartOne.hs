@@ -45,8 +45,9 @@ offsets = [(0,1),(0,-1),(1,0),(-1,0)]
 from pos = map (add pos) offsets
 
 spread ::  [String] -> Visited -> Goals -> Position -> Int -> (Visited, Goals)
-spread tiles visited reached pos time = if null next then (visit (time+1) visited goals, goals) else foldr stepTime (Map.insert pos time visited, goals) next
+spread tiles visited reached pos time = if null next then (visited', goals) else foldr stepTime (Map.insert pos time visited', goals) next
   where stepTime pos' (visited, reached) = merge (visited, reached) $ spread tiles (Map.insert pos' (time+1) visited) reached pos' (time+1)
+        visited' = visit (time+1) visited goals
         merge (v,r) (v',r') = (v', r++r')
         next = filter (\adjacent -> blank adjacent && floor adjacent) (from pos)
         visit time visited = foldr (\pos visited -> Map.insert pos time visited) visited . map fst
