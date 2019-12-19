@@ -1,4 +1,4 @@
-module Day18PartOne where
+module Day18PartTwo where
 
 import Common
 import Data.List
@@ -11,37 +11,23 @@ import Control.Monad.State
 import qualified Data.HashMap.Strict as Map
 import Data.MemoTrie
 
+import Debug.Trace
+
 type Position = (Int, Int)
 type Visited = Map.HashMap Position Int
 type Point = (Char,  Position, Int)
 type Distances = Tree Point
 type Goals = [((Int,Int), Int)]
-type Move = (Char, Set.HashSet Char)
-
-data Quadrant = C | UL | LL | UR | LR deriving (Eq, Show)
-quad (x,y) = if x == 40 && y == 40
-        then C
-        else if x < 40 && y < 40 then UL
-        else if x > 40 && y < 40 then UR
-        else if x > 40 && y > 40 then LR
-        else LL
-
-cquad C C = 0
-cquad UR LR = -2
-cquad LR UR = -2
-cquad UL LL = -2
-cquad LL UL = -2
-cquad _ _ = 0
+-- where each bot is; what keys we have; which bot is active
+type Move = ([Char], Set.HashSet Char, Int)
 
 costOf :: Distances-> [Char] -> Int
 costOf tree order = sum $ map (uncurry (cost tree)) $ oneAndNext $ order
 
 cost :: Distances -> Char -> Char -> Int
-cost tree one two = (go d1 d2) + (correct (coords $ last d1) (coords $ last d2))
+cost tree one two = go d1 d2
   where d1 = descendTo tree one
         d2 = descendTo tree two
-        correct :: Position -> Position -> Int
-        correct d1 d2 = cquad (quad d1) (quad d2)
         go a [] = sum $ map cost a
         go [] b = sum $ map cost b
         go a b | head a == head b = go (tail a) (tail b)
@@ -97,10 +83,17 @@ boring = foldTree isBoring
 
 strip (char, pos, dist) = (char, dist)
 
-toTree :: String -> Distances
-toTree maze = simplify $ evalState unfoldWithState Map.empty
-  where unfoldWithState :: State Visited Distances
-        unfoldWithState = (unfoldTreeM (visit $ lines maze) (start maze, 0)) 
+toTrees :: String -> [Distances]
+toTrees maze = map simplify $ map fixUp $ evalState unfoldWithState $ initialMap startPoint
+  where unfoldWithState :: State Visited [Distances]
+        unfoldWithState = (unfoldForestM (visit $ lines maze) $ zip (diagonals startPoint) (repeat 0))
+        startPoint = start maze
+
+fixUp :: Distances -> Distances
+fixUp (Node (key,keys,dist) children) = Node ('@',keys,dist) children
+
+initialMap :: Position -> Visited
+initialMap pos = foldr (\p v -> Map.insert p 0 v) Map.empty (from pos)
 
 visit :: [String] -> (Position, Int) -> State Visited (Point, [(Position, Int)])
 visit tiles (pos, distance) = do
@@ -128,28 +121,38 @@ start maze = head $ concatMap (\(y, line) -> [(x,y) | x <- findIndices (== '@') 
 
 add (x1, y1) (x2, y2) = (x1+x2, y1+y2)
 offsets = [(0,1),(0,-1),(1,0),(-1,0)]
+diags = [(1,1),(1,-1),(-1,-1),(-1,1)]
 from pos = map (add pos) offsets
+diagonals pos = map (add pos) diags
 
-solution :: Distances -> Maybe [Move]
-solution tree = aStar neighbours distance heuristic goal initial
+solution :: [Distances] -> Maybe [Move]
+solution trees = aStar neighbours distance heuristic goal initial
   where neighbours :: Move -> Set.HashSet Move
-        neighbours (key, held) = Set.fromList $ map addKey $ reachableKeys tree key (Set.toList held)
-          where addKey key' = (key', Set.insert key' held)
+        neighbours (keys, held, bot) = Set.fromList $ changeBot ++ grabKey
+          where changeBot = [(keys, held, bot') | bot' <- [0,1,2,3] \\ [bot]]
+                grabKey = map addKey $ reachableKeys (trees !! bot) (keys !! bot) (Set.toList held)
+                addKey key' = ((replace bot key' keys), Set.insert key' held, bot)
         distance :: Move -> Move -> Int
-        distance (k1,_) (k2,_) = costmem k1 k2
-        costmem = memo2 (cost tree)
+        distance (k1,_,bot1) (k2,_,bot2) | bot1 == bot2 = costmem bot1 (k1 !! bot1) (k2 !! bot2)
+        distance _ _ = 0
+        costmem = memo3 (\n -> cost (trees !! n))
         heuristic :: Move -> Int
-        heuristic (key, held) = sum $ map (foldr min 0) $ crossWith costmem $ remainingKeys
-          where remainingKeys = Set.toList $ Set.difference fullSet (Set.insert key held)
+        heuristic (keys, held, bot) = sum $ map costIn $ [0,1,2,3] \\ [bot]
+          where costIn n = sum $ map (foldr min 0) $ crossWith (costmem n) $ remainingKeys bot
+                remainingKeys n = Set.toList $ Set.difference (Set.fromList $ allKeys (trees !! n)) (Set.insert (keys !! bot) held)
         goal :: Move -> Bool
-        goal (key, held) = Set.insert key held == fullSet
+        goal (keys, held, bot) = Set.insert (keys !! bot) held == fullSet
         initial :: Move
-        initial = ('@', Set.fromList [])
-        fullSet = Set.fromList $ allKeys tree
+        initial = (replicate 4 '@', Set.fromList [], 0)
+        fullSet = Set.fromList $ concatMap allKeys trees
 
-bestCost tree = costOf tree ("@"++(map fst $ fromJust $ solution $ tree))
+bestCost trees = sum $ map (uncurry $ moveCost trees) $ oneAndNext $ fromJust $ solution $ trees
+
+moveCost :: [Distances] -> Move -> Move -> Int
+moveCost trees (_,_,bot1) (_,_,bot2) | bot1 /= bot2 = 0
+moveCost trees (k1,_,bot1) (k2,_,bot2) = cost (trees !! bot1) (k1 !! bot1) (k2 !! bot2)
 
 main = do
-    contents <- readFile "Day18.txt"
-    let tree = toTree contents
-    print $  bestCost tree
+  contents <- readFile "Day18.txt"
+  let forest = toTrees contents
+  print $ bestCost forest
