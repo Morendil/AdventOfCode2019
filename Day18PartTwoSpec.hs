@@ -1,7 +1,7 @@
 module Day18PartTwopec where
 
 import Data.Tree
-import Day18PartOne hiding (main)
+import Day18PartTwo hiding (main)
 import Test.Hspec
 
 main = do
@@ -12,7 +12,7 @@ main = do
     hspec $
         describe "Many-Worlds Interpretation" $ do
             it "Should get the examples right" $ do
-                (bestCost $ toTree sample1) `shouldBe` 8
-                (bestCost $ toTree sample2) `shouldBe` 24
-                (bestCost $ toTree sample3) `shouldBe` 32
-                (bestCost $ toTree sample5) `shouldBe` 72
+                (bestCost $ toTrees sample1) `shouldBe` 8
+                (bestCost $ toTrees sample2) `shouldBe` 24
+                (bestCost $ toTrees sample3) `shouldBe` 32
+                (bestCost $ toTrees sample4) `shouldBe` 72

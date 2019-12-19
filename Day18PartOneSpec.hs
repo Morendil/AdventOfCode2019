@@ -20,12 +20,6 @@ main = do
                 (allKeys $ toTree sample3) `shouldBe` "abcdefg"
                 (allKeys $ toTree sample4) `shouldBe` "abcdefghijklmnop"
                 (allKeys $ toTree sample5) `shouldBe` "abcdefghi"
-            it "Should list final keys" $ do
-                (finalKeys $ toTree sample1) `shouldBe` "ab"
-                (finalKeys $ toTree sample2) `shouldBe` "df"
-                (finalKeys $ toTree sample3) `shouldBe` "fg"
-                (finalKeys $ toTree sample4) `shouldBe` "ijklmnop"
-                (finalKeys $ toTree sample5) `shouldBe` "bghi"
             it "Should compute costs" $ do
                 (cost (toTree sample1) '@' 'a') `shouldBe` 2
                 (cost (toTree sample1) 'a' 'b') `shouldBe` 6
@@ -35,4 +29,4 @@ main = do
                 (bestCost $ toTree sample2) `shouldBe` 86
                 (bestCost $ toTree sample3) `shouldBe` 132
                 (bestCost $ toTree sample5) `shouldBe` 81
-                -- (bestCost $ toTree sample4) `shouldBe` 136
+                (bestCost $ toTree sample4) `shouldBe` 136
