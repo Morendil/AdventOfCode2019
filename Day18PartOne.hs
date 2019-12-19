@@ -4,29 +4,19 @@ import Common
 import Data.List
 import Data.Tree
 import Data.Char
-import Data.Ord
 import Data.Maybe
+import Data.Graph.AStar
+import qualified Data.HashSet as Set
 import Control.Monad.State
 import qualified Data.HashMap.Strict as Map
+import Data.MemoTrie
 
 type Position = (Int, Int)
 type Visited = Map.HashMap Position Int
 type Point = (Char,  Position, Int)
 type Distances = Tree Point
 type Goals = [((Int,Int), Int)]
-
-fullPath tree order = "@" ++ quasiPath tree order
-quasiPath tree order = nub $ concatMap (pathTo tree) order
-heuristic tree = fullPath tree $ sortOn (length . pathTo tree) (finalKeys tree)
-
-bestPath :: Distances -> [Char]
-bestPath tree = minimumBy (comparing (\p -> costOf tree p)) $ map (\p -> fullPath tree p) $ permutations $ finalKeys tree
-
-bestCost :: Distances -> Int
-bestCost tree = minimum $ map (\p -> costOf tree $ fullPath tree p) $ permutations $ finalKeys tree
-
-costOf :: Distances-> [Char] -> Int
-costOf tree order = sum $ map (uncurry (cost tree)) $ oneAndNext $ order
+type Move = (Char, Set.HashSet Char)
 
 data Quadrant = C | UL | LL | UR | LR deriving (Eq, Show)
 quad (x,y) = if x == 40 && y == 40
@@ -43,6 +33,8 @@ cquad UL LL = -2
 cquad LL UL = -2
 cquad _ _ = 0
 
+costOf :: Distances-> [Char] -> Int
+costOf tree order = sum $ map (uncurry (cost tree)) $ oneAndNext $ order
 
 cost :: Distances -> Char -> Char -> Int
 cost tree one two = (go d1 d2) + (correct (coords $ last d1) (coords $ last d2))
@@ -79,15 +71,16 @@ allKeys :: Distances -> [Char]
 allKeys tree = nub $ sort $ foldTree collectKeys tree
   where collectKeys (key,_,_) keys = if isLower key then key:(concat keys) else (concat keys)
 
-finalKeys :: Distances -> [Char]
-finalKeys tree = nub $ sort $ foldTree collectKeys tree
-  where collectKeys (key,_,_) [] = if isLower key then [key] else []
-        collectKeys (key,_,_) xs = concat xs
-
 initialKeys :: Distances -> [Char]
 initialKeys tree = nub $ sort $ foldTree collectKeys tree
   where collectKeys (key,_,_) _ | isLower key = [key]
         collectKeys (key,_,_) _ | isUpper key = []
+        collectKeys (key,_,_) xs = concat xs
+
+reachableKeys :: Distances -> Char -> [Char] -> [Char]
+reachableKeys tree current held = nub $ sort $ foldTree collectKeys tree
+  where collectKeys (key,_,_) xs | isLower key && key /= current = key:(concat xs)
+        collectKeys (key,_,_) _ | isUpper key && (not.elem (toLower key)) held = []
         collectKeys (key,_,_) xs = concat xs
 
 simplify :: Distances -> Distances
@@ -137,6 +130,25 @@ add (x1, y1) (x2, y2) = (x1+x2, y1+y2)
 offsets = [(0,1),(0,-1),(1,0),(-1,0)]
 from pos = map (add pos) offsets
 
+solution :: Distances -> Maybe [Move]
+solution tree = aStar neighbours distance heuristic goal initial
+  where neighbours :: Move -> Set.HashSet Move
+        neighbours (key, held) = Set.fromList $ map addKey $ reachableKeys tree key (Set.toList held)
+          where addKey key' = (key', Set.insert key' held)
+        distance :: Move -> Move -> Int
+        distance (k1,_) (k2,_) = costmem k1 k2
+        costmem = memo2 (cost tree)
+        heuristic :: Move -> Int
+        heuristic (key, held) = sum $ map (foldr min 0) $ crossWith costmem $ remainingKeys
+          where remainingKeys = Set.toList $ Set.difference fullSet (Set.insert key held)
+        goal :: Move -> Bool
+        goal (key, held) = Set.insert key held == fullSet
+        initial :: Move
+        initial = ('@', Set.fromList [])
+        fullSet = Set.fromList $ allKeys tree
+
 main = do
     contents <- readFile "Day18.txt"
-    putStrLn $ drawTree $ fmap show $ fmap strip $ simplify $ toTree contents
+    let tree = toTree contents
+        path = map fst $ fromJust $ solution $ tree
+    print $  costOf tree ("@"++path)

@@ -47,3 +47,9 @@ indexed :: [a] -> [(Int, a)]
 indexed list = zip [0..(length list)] list
 
 partitionOn f = (groupBy $ equating f) . (sortBy $ comparing f)
+
+cross :: Eq a => [a] -> [[(a,a)]]
+cross list = [[(a,b) | b<-list , a /= b] | a <- list]
+
+crossWith :: Eq a => (a -> a -> b) -> [a] -> [[b]]
+crossWith f list = [[f a b | b<-list , a /= b] | a <- list]
