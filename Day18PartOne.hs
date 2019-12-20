@@ -139,8 +139,7 @@ solution tree = aStar neighbours distance heuristic goal initial
         distance (k1,_) (k2,_) = costmem k1 k2
         costmem = memo2 (cost tree)
         heuristic :: Move -> Int
-        heuristic (key, held) = sum $ map (foldr min 0) $ crossWith costmem $ remainingKeys
-          where remainingKeys = Set.toList $ Set.difference fullSet (Set.insert key held)
+        heuristic (key, held) = 0
         goal :: Move -> Bool
         goal (key, held) = Set.insert key held == fullSet
         initial :: Move
