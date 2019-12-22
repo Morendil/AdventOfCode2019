@@ -32,9 +32,9 @@ result moves deck = foldl (flip applyMove) deck moves
 
 applyMove :: Move -> [Int] -> [Int]
 applyMove NewStack deck = reverse deck
-applyMove (Cut pos) deck | pos >= 0 = (drop pos deck) ++ (take pos deck)
-applyMove (Cut pos) deck | pos < 0 = (drop (len+pos) deck) ++ (take (len+pos) deck)
-  where len = length deck
+applyMove (Cut pos) deck = if pos >= 0 then (drop m deck) ++ (take m deck) else (drop (len-m) deck) ++ (take (len-m) deck)
+  where m = (abs pos) `mod` len
+        len = length deck
 applyMove (Deal pos) deck = map (\p -> deck !! snd p) $ sort $ map (\n -> (n*pos `mod` len, n)) [0..(len-1)]
   where len = length deck
 

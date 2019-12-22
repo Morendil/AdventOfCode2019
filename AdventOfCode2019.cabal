@@ -36,4 +36,5 @@ executable AdventOfCode2019
         astar -any,
         mtl -any,
         MemoTrie -any,
-        utility-ht -any
+        utility-ht -any,
+        primes -any
