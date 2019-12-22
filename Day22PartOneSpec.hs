@@ -5,7 +5,7 @@ import Test.Hspec
 
 main = do
     hspec $
-        describe "Many-Worlds Interpretation" $ do
+        describe "Slam Shuffle" $ do
             it "Should get the moves right" $ do
                 applyMove (Deal 3) [0..9] `shouldBe` [0, 7, 4, 1, 8, 5, 2, 9, 6, 3]
                 applyMove (Deal 7) [0..9] `shouldBe` [0, 3, 6, 9, 2, 5, 8, 1, 4, 7]
