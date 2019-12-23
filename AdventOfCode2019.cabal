@@ -37,4 +37,5 @@ executable AdventOfCode2019
         mtl -any,
         MemoTrie -any,
         utility-ht -any,
-        primes -any
+        primes -any,
+        yjtools -any
