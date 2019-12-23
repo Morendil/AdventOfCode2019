@@ -27,10 +27,11 @@ run :: Inputs -> Program -> Outputs
 run inputs program = outputs $ untilStable $ iterate step $ initialize program inputs
     where outputs (_, _, _, v,_,_) = v
 
+output (_, _, out) = out
+
 outputSequence :: Program -> [Integer] -> [Integer]
 outputSequence program inputs = mapMaybe onChange $ oneAndNext $ map output $ execSequence program inputs
-  where output (_, _, out) = out
-        onChange (one, next) = if one == next then Nothing else Just $ last next
+  where onChange (one, next) = if one == next then Nothing else Just $ last next
 
 execSequence program inputs = map snd $ takeWhile notSame $ oneAndNext $ map dropInputs $ iterate step $ initialize program inputs
   where dropInputs (pos, program, inputs, outputs, base, memory) = (pos, program, outputs)
