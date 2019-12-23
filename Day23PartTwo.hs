@@ -10,10 +10,10 @@ import Debug.Trace
 
 data Bot = Bot { address :: Integer, state :: State}
 type Packet = [Integer]
-data Network = Network { bots :: [Bot], nat :: [Packet] }
+data Network = Network { bots :: [Bot], nat :: [Packet], delivered :: [Packet] }
 
 start :: Program -> Network
-start program = Network { bots=bots, nat = []}
+start program = Network { bots=bots, nat = [], delivered = []}
   where bots = map (\n -> Bot { address = toInteger n, state = initialize program ([n]++repeat (-1))}) [0..49]
 
 idle :: Network -> Bool
@@ -23,9 +23,9 @@ switch :: Network -> Network
 switch network = if any for255 mail then interceptIt else switchIt
   where interceptIt = switchIt { nat = (nat network)++[natPacket] }
         switchIt = network { bots = map relieve $ map (dispatch mail) (bots network) }
-        natPacket = replace 0 0 $ fromJust $ find for255 mail
-        mail = if null mail' then mail' else traceShowId $ mail'
-        mail' = mailbag network
+        natPacket = fromJust $ find for255 mail
+        -- mail = if null mail' then mail' else traceShowId $ mail'
+        mail = mailbag network
 
 mailbag :: Network -> [Packet]
 mailbag = catMaybes . map collect . bots
@@ -44,9 +44,11 @@ dispatch packets bot = bot { state = (state bot) { input = input'} }
         input' = inp ++ (concat $ map tail $ filter (\p -> head p == address bot) packets) ++ (repeat (-1))
 
 stepAll :: Network -> Network
-stepAll network = if idle network then traceShow "REBOOT" $ traceShow (nat network) $ rebootIt else switch $ network { bots = map stepOneState (bots network) }
-  where rebootIt = network { bots = map stepOneState dispatched }
-        dispatched = (dispatch [last $ nat network] $ head $ bots network):(tail $ bots network)
+stepAll network = if idle network then traceShow "REBOOT" $ rebootIt else switch $ network { bots = map stepOneState (bots network) }
+  where rebootIt = network { bots = map (stepOneState.resetLast) dispatched, delivered = traceShowId $ (delivered network) ++ [rebootPacket] }
+        resetLast bot = bot {state = (state bot) { lastIn = Nothing}}
+        dispatched = (dispatch [rebootPacket] $ head $ bots network):(tail $ bots network)
+        rebootPacket = replace 0 0 $ last $ traceShowId $ nat network
 
 stepOneState :: Bot -> Bot
 stepOneState bot = bot { state = step $ state bot}
@@ -57,6 +59,8 @@ main = do
     contents <- readFile "Day23.txt"
     let program = parse contents
         repeats :: [Packet] -> Bool
-        repeats nat = let ys = map (!!2) nat in nub ys /= ys
-        repeated nat = head $ (map (!!2) nat) \\ nub (map (!!2) nat)
-    print $ (repeated.nat) $ last $ takeUntil (repeats.nat) $ iterate stepAll (start program)
+        repeats pkts = same $ map (!!2) $ take 2 pkts
+        repeated pkts = (head pkts) !! 2
+        same [x, y] = x == y
+        same _ = False
+    print $ (repeated.delivered) $ last $ takeUntil (repeats.delivered) $ iterate stepAll (start program)
