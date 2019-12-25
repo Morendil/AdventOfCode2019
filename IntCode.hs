@@ -4,12 +4,16 @@ import Common
 import Data.Maybe
 import qualified Data.HashMap.Strict as Map
 
+import Debug.Trace
+
 type Program = [Integer]
 type Inputs = [Integer]
 type Outputs = [Integer]
 type Memory = Map.HashMap Integer Integer
 data State = State {
   pc :: Int,
+  cycles :: Int,
+  halt :: Bool,
   code :: Program,
   input :: Inputs,
   lastIn :: Maybe Integer,
@@ -18,7 +22,7 @@ data State = State {
   memory :: Memory } deriving (Eq, Show)
 
 initialize :: Program -> Inputs -> State
-initialize program inputs = State { pc=0, code=program, input=inputs, lastIn=Nothing, output=[], base=0, memory=Map.empty }
+initialize program inputs = State { pc=0, halt = False, cycles=0, code=program, input=inputs, lastIn=Nothing, output=[], base=0, memory=Map.empty }
 
 execute :: Inputs -> String -> Outputs
 execute inputs = run inputs . parse
@@ -48,18 +52,19 @@ write n value state = if (fromInteger n) < (length $ code state)
 
 step :: State -> State
 step state = case op of
-        1 -> write result (x+y) $ state { pc = next 4 }
-        2 -> write result (x*y) $ state { pc = next 4 }
-        3 -> write (put 1) (head $ input state) $ state { pc = next 2, input = tail $ input state, lastIn=Just (head $ input state) }
-        4 -> state { pc = next 2, output = (output state)++[x] }
-        5 -> state { pc = if x /= 0 then fromInteger y else next 3 }
-        6 -> state { pc = if x == 0 then fromInteger y else next 3 }
-        7 -> write result (if x < y then 1 else 0) $ state { pc = next 4 }
-        8 -> write result (if x == y then 1 else 0) $ state { pc = next 4 }
-        9 -> state { pc = next 2, base = (base state) + x }
-        99 -> state
+        1 -> write result (x+y) $ state' { pc = next 4 }
+        2 -> write result (x*y) $ state' { pc = next 4 }
+        3 -> write (put 1) (head $ input state) $ state' { pc = next 2, input = tail $ input state, lastIn=Just (head $ input state) }
+        4 -> state' { pc = next 2, output = (output state)++[x] }
+        5 -> state' { pc = if x /= 0 then fromInteger y else next 3 }
+        6 -> state' { pc = if x == 0 then fromInteger y else next 3 }
+        7 -> write result (if x < y then 1 else 0) $ state' { pc = next 4 }
+        8 -> write result (if x == y then 1 else 0) $ state' { pc = next 4 }
+        9 -> state' { pc = next 2, base = (base state) + x }
+        99 -> state { halt = True}
         otherwise -> error ("HCF(op="++show op++")"++show (pc state, code state))
-    where next count = (pc state) + count
+    where state' = state { cycles = cycles state + 1}
+          next count = (pc state) + count
           opcode = access (pc state)
           op = opcode `mod` 100
           fetch n = case mode n of
