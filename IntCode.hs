@@ -20,11 +20,13 @@ data State = State {
   output :: Outputs,
   base :: Integer,
   codeLength :: Int,
+  maxM :: Int,
   memory :: Memory } deriving (Eq, Show)
 
 initialize :: Program -> Inputs -> State
 initialize program inputs = State {
   pc=0,
+  maxM=0,
   halt = False,
   cycles=0,
   input=inputs,
@@ -62,7 +64,9 @@ execSequence program inputs = map snd $ takeWhile notSame $ oneAndNext $ map dro
   where dropInputs state = (pc state, code state, output state)
 
 write :: Integer -> Integer -> State -> State
-write n value state = state { memory = Map.insert (fromInteger n) value (memory state)}
+write n value state = state { memory = Map.insert (fromInteger n) value (memory state), maxM=newMax }
+  where newMax = if (fromInteger n) > prevMax then (fromInteger n) else prevMax
+        prevMax = maxM state
 
 step :: State -> State
 step state = case op of
@@ -75,7 +79,7 @@ step state = case op of
         7 -> write result (if x < y then 1 else 0) $ state' { pc = next 4 }
         8 -> write result (if x == y then 1 else 0) $ state' { pc = next 4 }
         9 -> state' { pc = next 2, base = (base state) + x }
-        99 -> state { halt = True}
+        99 -> state' { halt = True}
         _ -> error ("HCF(op="++show op++")"++show (pc state, code state))
     where state' = state { cycles = cycles state + 1}
           next count = (pc state) + count

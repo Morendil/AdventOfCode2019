@@ -15,7 +15,7 @@ main = do
     (flip loopM) state $ (\seed -> do
         let state' = last $ takeWhile (\s -> lastIn s == Nothing && (not.halt) s) $ iterate step seed
         putStrLn (fromAscii $ output state')
-        putStr $ (show $ cycles state')++"> "
+        putStr $ (show $ maxM state')++"/"++(show $ codeLength state')++"> "
         hFlush stdout
         command <- getLine
         putStrLn ("ok ("++command++")...")
