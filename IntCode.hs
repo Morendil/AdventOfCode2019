@@ -62,7 +62,7 @@ step state = case op of
         8 -> write result (if x == y then 1 else 0) $ state' { pc = next 4 }
         9 -> state' { pc = next 2, base = (base state) + x }
         99 -> state { halt = True}
-        otherwise -> error ("HCF(op="++show op++")"++show (pc state, code state))
+        _ -> error ("HCF(op="++show op++")"++show (pc state, code state))
     where state' = state { cycles = cycles state + 1}
           next count = (pc state) + count
           opcode = access (pc state)
