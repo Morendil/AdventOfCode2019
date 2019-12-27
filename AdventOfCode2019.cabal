@@ -1,11 +1,6 @@
-cabal-version: 2.4
 name: AdventOfCode2019
 version: 1.0
 stability: experimental
-x-ghc-framework-version: 8.6.4-13.14-2
-x-last-ide-version: HfM1.7.0
-data-files:
-    Day25.txt
 
 executable AdventOfCode2019
     main-is: Day23PartOne.hs
@@ -20,9 +15,6 @@ executable AdventOfCode2019
         containers -any,
         unordered-containers -any,
         QuickCheck -any,
-        astar -any,
-        mtl -any,
-        MemoTrie -any,
         utility-ht -any,
         primes -any,
         yjtools -any
