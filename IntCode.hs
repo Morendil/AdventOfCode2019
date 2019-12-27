@@ -2,27 +2,43 @@ module IntCode where
   
 import Common
 import Data.Maybe
-import qualified Data.HashMap.Strict as Map
+import Data.List
+import qualified Data.IntMap as Map
 
 import Debug.Trace
 
 type Program = [Integer]
 type Inputs = [Integer]
 type Outputs = [Integer]
-type Memory = Map.HashMap Integer Integer
+type Memory = Map.IntMap Integer
 data State = State {
   pc :: Int,
   cycles :: Int,
   halt :: Bool,
-  code :: Program,
   input :: Inputs,
   lastIn :: Maybe Integer,
   output :: Outputs,
   base :: Integer,
+  codeLength :: Int,
   memory :: Memory } deriving (Eq, Show)
 
 initialize :: Program -> Inputs -> State
-initialize program inputs = State { pc=0, halt = False, cycles=0, code=program, input=inputs, lastIn=Nothing, output=[], base=0, memory=Map.empty }
+initialize program inputs = State {
+  pc=0,
+  halt = False,
+  cycles=0,
+  input=inputs,
+  lastIn=Nothing,
+  output=[],
+  base=0,
+  codeLength=length program,
+  memory=load program }
+
+load :: Program -> Memory
+load program = Map.fromList $ zip [0..length program-1] program
+
+code :: State -> Program
+code state = map snd $ sort $ Map.toList $ Map.filterWithKey (\k v -> k < codeLength state) $ memory state
 
 execute :: Inputs -> String -> Outputs
 execute inputs = run inputs . parse
@@ -46,9 +62,7 @@ execSequence program inputs = map snd $ takeWhile notSame $ oneAndNext $ map dro
   where dropInputs state = (pc state, code state, output state)
 
 write :: Integer -> Integer -> State -> State
-write n value state = if (fromInteger n) < (length $ code state)
-    then state { code = replace (fromInteger n) value (code state) }
-    else state { memory = Map.insert n value (memory state)}
+write n value state = state { memory = Map.insert (fromInteger n) value (memory state)}
 
 step :: State -> State
 step state = case op of
@@ -77,7 +91,7 @@ step state = case op of
             2 -> fromInteger $ (base state) + (immediate n)
             _ -> error ("HCF(write mode="++show (mode n)++")"++show (pc state, code state))
           mode n = (opcode `div` (10^(1+n))) `mod` 10
-          access n = if n < length (code state) then (code state) !! n else Map.lookupDefault 0 (toInteger n) (memory state)
+          access n = Map.findWithDefault 0 n (memory state)
           immediate n = access ((pc state)+n)
           addr n = fromInteger $ immediate n
           value n = access (addr n)
