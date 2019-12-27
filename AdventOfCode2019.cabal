@@ -8,9 +8,10 @@ data-files:
     Day25.txt
 
 executable AdventOfCode2019
-    main-is: Day25PartOne.hs
+    main-is: Day23PartOne.hs
     other-modules:
         Common
+        IntCode
     build-depends:
         base -any,
         extra -any,

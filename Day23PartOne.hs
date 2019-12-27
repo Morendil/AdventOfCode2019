@@ -1,4 +1,4 @@
-module Day23PartOne where
+module Main where
 
 import Common
 import Data.List
