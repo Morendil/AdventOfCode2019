@@ -1,4 +1,4 @@
-module Day23PartTwo where
+module Main where
 
 import Common
 import Data.List
@@ -44,11 +44,11 @@ dispatch packets bot = bot { state = (state bot) { input = input'} }
         input' = inp ++ (concat $ map tail $ filter (\p -> head p == address bot) packets) ++ (repeat (-1))
 
 stepAll :: Network -> Network
-stepAll network = if idle network then traceShow "REBOOT" $ rebootIt else switch $ network { bots = map stepOneState (bots network) }
-  where rebootIt = network { bots = map (stepOneState.resetLast) dispatched, delivered = traceShowId $ (delivered network) ++ [rebootPacket] }
+stepAll network = if idle network then rebootIt else switch $ network { bots = map stepOneState (bots network) }
+  where rebootIt = network { bots = map (stepOneState.resetLast) dispatched, delivered = (delivered network) ++ [rebootPacket] }
         resetLast bot = bot {state = (state bot) { lastIn = Nothing}}
         dispatched = (dispatch [rebootPacket] $ head $ bots network):(tail $ bots network)
-        rebootPacket = replace 0 0 $ last $ traceShowId $ nat network
+        rebootPacket = replace 0 0 $ last $ nat network
 
 stepOneState :: Bot -> Bot
 stepOneState bot = bot { state = step $ state bot}
@@ -58,9 +58,5 @@ for255 p = head p == toInteger 255
 main = do
     contents <- readFile "Day23.txt"
     let program = parse contents
-        repeats :: [Packet] -> Bool
-        repeats pkts = same $ map (!!2) $ take 2 pkts
-        repeated pkts = (head pkts) !! 2
-        same [x, y] = x == y
-        same _ = False
-    print $ (repeated.delivered) $ last $ takeUntil (repeats.delivered) $ iterate stepAll (start program)
+        repeats l = length l >=2 && ((l !! ((length l)-1)) == (l !! ((length l)-2)))
+    print $ last $ last $ takeUntil repeats $ map (map (!!2)) $ map delivered $ iterate stepAll (start program)

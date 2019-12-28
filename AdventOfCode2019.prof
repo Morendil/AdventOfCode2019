@@ -1,0 +1,267 @@
+	Sat Dec 28 10:44 2019 Time and Allocation Profiling Report  (Final)
+
+	   AdventOfCode2019 +RTS -p -RTS
+
+	total time  =       12.62 secs   (12620 ticks @ 1000 us, 1 processor)
+	total alloc = 8,096,538,120 bytes  (excludes profiling overheads)
+
+COST CENTRE     MODULE    SRC                              %time %alloc
+
+step.access     IntCode   IntCode.hs:98:11-59               17.9    0.0
+step            IntCode   IntCode.hs:(72,1)-(106,21)        14.0   22.7
+step.mode       IntCode   IntCode.hs:97:11-53               10.8    5.0
+write           IntCode   IntCode.hs:(67,1)-(69,28)          6.1   16.4
+stepOneState    Main      Day23PartTwo.hs:54:1-50            5.6    9.3
+switch.switchIt Main      Day23PartTwo.hs:25:9-86            5.4   10.8
+mailbag         Main      Day23PartTwo.hs:31:1-40            4.4    5.4
+dispatch        Main      Day23PartTwo.hs:(42,1)-(44,107)    3.6    7.8
+stepAll         Main      Day23PartTwo.hs:(47,1)-(51,55)     3.4    5.4
+step.fetch      IntCode   IntCode.hs:(88,11)-(92,85)         3.2    0.0
+relieve         Main      Day23PartTwo.hs:(37,1)-(39,61)     3.1    6.8
+collect         Main      Day23PartTwo.hs:34:1-104           2.7    0.0
+dispatch.inp    Main      Day23PartTwo.hs:43:9-53            2.3    0.3
+dispatch.input' Main      Day23PartTwo.hs:44:9-107           1.6    3.2
+step.immediate  IntCode   IntCode.hs:99:11-45                1.6    0.0
+step.op         IntCode   IntCode.hs:87:11-31                1.5    1.0
+relieve.output' Main      Day23PartTwo.hs:39:9-61            1.4    0.0
+relieve.out     Main      Day23PartTwo.hs:38:9-32            1.2    0.0
+idle            Main      Day23PartTwo.hs:20:1-103           1.1    0.0
+step.put        IntCode   IntCode.hs:(93,11)-(96,91)         1.1    0.0
+number          Common    Common.hs:(14,1)-(17,37)           0.8    1.9
+main            Main      Day23PartTwo.hs:(58,1)-(62,104)    0.7    1.4
+
+
+                                                                                                      individual      inherited
+COST CENTRE              MODULE                  SRC                               no.     entries  %time %alloc   %time %alloc
+
+MAIN                     MAIN                    <built-in>                        183          0    0.0    0.0   100.0  100.0
+ CAF                     GHC.Conc.Signal         <entire-module>                   295          0    0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Encoding         <entire-module>                   279          0    0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Encoding.Iconv   <entire-module>                   277          0    0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Exception        <entire-module>                   271          0    0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Handle.FD        <entire-module>                   269          0    0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Handle.Internals <entire-module>                   268          0    0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Handle.Text      <entire-module>                   267          0    0.0    0.0     0.0    0.0
+ CAF                     Text.Read.Lex           <entire-module>                   234          0    0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.FD               <entire-module>                   210          0    0.0    0.0     0.0    0.0
+ CAF:comma1              Common                  <no location info>                356          0    0.0    0.0     0.0    0.0
+  comma                  Common                  Common.hs:12:1-24                 403          1    0.0    0.0     0.0    0.0
+ CAF:mailbag             Main                    Day23PartTwo.hs:31:1-7            321          0    0.0    0.0     0.0    0.0
+  mailbag                Main                    Day23PartTwo.hs:31:1-40           377          1    0.0    0.0     0.0    0.0
+ CAF:main1               Main                    <no location info>                328          0    0.0    0.0     0.0    0.0
+  main                   Main                    Day23PartTwo.hs:(58,1)-(62,104)   366          1    0.0    0.0     0.0    0.0
+ CAF:main6               Main                    <no location info>                327          0    0.0    0.0     0.0    0.0
+ CAF:number1             Common                  <no location info>                362          0    0.0    0.0     0.0    0.0
+  number                 Common                  Common.hs:(14,1)-(17,37)          399          1    0.0    0.0     0.0    0.0
+ CAF:numberList1         Common                  <no location info>                364          0    0.0    0.0     0.0    0.0
+  numberList             Common                  Common.hs:19:1-32                 397          1    0.0    0.0     0.0    0.0
+ CAF:parse1              IntCode                 <no location info>                354          0    0.0    0.0     0.0    0.0
+  parse                  IntCode                 IntCode.hs:52:1-60                395          0    0.0    0.0     0.0    0.0
+   parseMaybe            Common                  Common.hs:(22,1)-(25,38)          396          0    0.0    0.0     0.0    0.0
+    numberList           Common                  Common.hs:19:1-32                 398          0    0.0    0.0     0.0    0.0
+     number              Common                  Common.hs:(14,1)-(17,37)          400          0    0.0    0.0     0.0    0.0
+ CAF:readInt             Common                  Common.hs:10:1-7                  361          0    0.0    0.0     0.0    0.0
+  readInt                Common                  Common.hs:10:1-14                 405          1    0.0    0.0     0.0    0.0
+ CAF:readInt3            Common                  <no location info>                360          0    0.0    0.0     0.0    0.0
+  readInt                Common                  Common.hs:10:1-14                 407          0    0.0    0.0     0.0    0.0
+ main                    Main                    Day23PartTwo.hs:(58,1)-(62,104)   367          0    0.7    1.4   100.0  100.0
+  delivered              Main                    Day23PartTwo.hs:13:58-66          370      99001    0.0    0.0     0.0    0.0
+  takeUntil              Data.List.Tools         Data/List/Tools.hs:(14,1)-(17,39) 368      99001    0.2    0.1     0.6    0.1
+   main.repeats          Main                    Day23PartTwo.hs:61:9-84           369      99001    0.4    0.0     0.4    0.0
+  stepAll                Main                    Day23PartTwo.hs:(47,1)-(51,55)    372      99000    3.4    5.4    97.8   96.5
+   stepOneState          Main                    Day23PartTwo.hs:54:1-50           382    4948800    5.6    9.3    66.4   56.6
+    state                Main                    Day23PartTwo.hs:11:38-42          384    4948800    0.0    0.0     0.0    0.0
+    step                 IntCode                 IntCode.hs:(72,1)-(106,21)        386    4948800   14.0   22.7    60.8   47.3
+     step.op             IntCode                 IntCode.hs:87:11-31               408    4948800    1.5    1.0     1.5    1.0
+     step.opcode         IntCode                 IntCode.hs:86:11-36               387    4948800    0.9    0.0     4.8    0.0
+      pc                 IntCode                 IntCode.hs:15:3-4                 388    4948800    0.0    0.0     0.0    0.0
+      step.access        IntCode                 IntCode.hs:98:11-59               389    4948800    3.9    0.0     3.9    0.0
+       memory            IntCode                 IntCode.hs:24:3-8                 390    4948800    0.0    0.0     0.0    0.0
+     step.state'         IntCode                 IntCode.hs:84:11-53               409    4948800    0.0    0.0     0.0    0.0
+     step.x              IntCode                 IntCode.hs:105:11-21              442    3983004    0.7    0.8    18.5    3.2
+      step.fetch         IntCode                 IntCode.hs:(88,11)-(92,85)        443    3983004    2.1    0.0    17.7    2.4
+       step.mode         IntCode                 IntCode.hs:97:11-53               444    3983004    5.3    2.4     5.3    2.4
+       step.value        IntCode                 IntCode.hs:101:11-35              462    2912034    0.6    0.0     8.3    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               468    2912034    3.3    0.0     3.3    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 469    2912034    0.0    0.0     0.0    0.0
+        step.addr        IntCode                 IntCode.hs:100:11-44              463    2912034    0.5    0.0     4.4    0.0
+         step.immediate  IntCode                 IntCode.hs:99:11-45               464    2912034    0.5    0.0     3.9    0.0
+          pc             IntCode                 IntCode.hs:15:3-4                 465    2912034    0.0    0.0     0.0    0.0
+          step.access    IntCode                 IntCode.hs:98:11-59               466    2912034    3.5    0.0     3.5    0.0
+           memory        IntCode                 IntCode.hs:24:3-8                 467    2912034    0.0    0.0     0.0    0.0
+       step.immediate    IntCode                 IntCode.hs:99:11-45               445     992207    0.2    0.0     1.6    0.0
+        pc               IntCode                 IntCode.hs:15:3-4                 446     992207    0.0    0.0     0.0    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               447     992207    1.3    0.0     1.3    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 448     992207    0.0    0.0     0.0    0.0
+       step.relative     IntCode                 IntCode.hs:102:11-74              495      78763    0.1    0.0     0.5    0.0
+        base             IntCode                 IntCode.hs:21:3-6                 496      78763    0.0    0.0     0.0    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               501      78763    0.2    0.0     0.2    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 502      78763    0.0    0.0     0.0    0.0
+        step.immediate   IntCode                 IntCode.hs:99:11-45               497      78763    0.0    0.0     0.2    0.0
+         pc              IntCode                 IntCode.hs:15:3-4                 498      78763    0.0    0.0     0.0    0.0
+         step.access     IntCode                 IntCode.hs:98:11-59               499      78763    0.2    0.0     0.2    0.0
+          memory         IntCode                 IntCode.hs:24:3-8                 500      78763    0.0    0.0     0.0    0.0
+     step.next           IntCode                 IntCode.hs:85:11-41               420    3959208    0.9    0.8     0.9    0.8
+      pc                 IntCode                 IntCode.hs:15:3-4                 421    3959208    0.0    0.0     0.0    0.0
+     input               IntCode                 IntCode.hs:18:3-7                 470    2369479    0.0    0.0     0.0    0.0
+     step.y              IntCode                 IntCode.hs:106:11-21              449    2042592    0.5    0.4     7.4    2.0
+      step.fetch         IntCode                 IntCode.hs:(88,11)-(92,85)        450    2042592    1.2    0.0     6.9    1.6
+       step.mode         IntCode                 IntCode.hs:97:11-53               451    2042592    3.1    1.6     3.1    1.6
+       step.immediate    IntCode                 IntCode.hs:99:11-45               458    1993931    0.6    0.0     2.4    0.0
+        pc               IntCode                 IntCode.hs:15:3-4                 459    1993931    0.0    0.0     0.0    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               460    1993931    1.8    0.0     1.8    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 461    1993931    0.0    0.0     0.0    0.0
+       step.relative     IntCode                 IntCode.hs:102:11-74              483      27318    0.0    0.0     0.1    0.0
+        base             IntCode                 IntCode.hs:21:3-6                 484      27318    0.0    0.0     0.0    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               489      27318    0.0    0.0     0.0    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 490      27318    0.0    0.0     0.0    0.0
+        step.immediate   IntCode                 IntCode.hs:99:11-45               485      27318    0.0    0.0     0.0    0.0
+         pc              IntCode                 IntCode.hs:15:3-4                 486      27318    0.0    0.0     0.0    0.0
+         step.access     IntCode                 IntCode.hs:98:11-59               487      27318    0.0    0.0     0.0    0.0
+          memory         IntCode                 IntCode.hs:24:3-8                 488      27318    0.0    0.0     0.0    0.0
+       step.value        IntCode                 IntCode.hs:101:11-35              452      21343    0.0    0.0     0.2    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               471      21343    0.1    0.0     0.1    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 472      21343    0.0    0.0     0.0    0.0
+        step.addr        IntCode                 IntCode.hs:100:11-44              453      21343    0.0    0.0     0.1    0.0
+         step.immediate  IntCode                 IntCode.hs:99:11-45               454      21343    0.0    0.0     0.1    0.0
+          pc             IntCode                 IntCode.hs:15:3-4                 455      21343    0.0    0.0     0.0    0.0
+          step.access    IntCode                 IntCode.hs:98:11-59               456      21343    0.1    0.0     0.1    0.0
+           memory        IntCode                 IntCode.hs:24:3-8                 457      21343    0.0    0.0     0.0    0.0
+     write               IntCode                 IntCode.hs:(67,1)-(69,28)         410    2018603    6.1   16.4     6.1   16.4
+      memory             IntCode                 IntCode.hs:24:3-8                 429    2018565    0.0    0.0     0.0    0.0
+     step.result         IntCode                 IntCode.hs:104:11-24              434    1055171    0.2    0.2     4.0    0.9
+      step.put           IntCode                 IntCode.hs:(93,11)-(96,91)        435    1055171    0.6    0.0     3.8    0.7
+       step.mode         IntCode                 IntCode.hs:97:11-53               436    1055171    1.4    0.6     1.4    0.6
+       step.addr         IntCode                 IntCode.hs:100:11-44              437     992337    0.1    0.0     1.6    0.0
+        step.immediate   IntCode                 IntCode.hs:99:11-45               438     992337    0.1    0.0     1.5    0.0
+         pc              IntCode                 IntCode.hs:15:3-4                 439     992337    0.0    0.0     0.0    0.0
+         step.access     IntCode                 IntCode.hs:98:11-59               440     992337    1.4    0.0     1.4    0.0
+          memory         IntCode                 IntCode.hs:24:3-8                 441     992337    0.0    0.0     0.0    0.0
+       base              IntCode                 IntCode.hs:21:3-6                 477      62834    0.0    0.0     0.0    0.0
+       step.immediate    IntCode                 IntCode.hs:99:11-45               478      62834    0.0    0.0     0.2    0.0
+        pc               IntCode                 IntCode.hs:15:3-4                 479      62834    0.0    0.0     0.0    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               480      62834    0.2    0.0     0.2    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 481      62834    0.0    0.0     0.0    0.0
+     step.put            IntCode                 IntCode.hs:(93,11)-(96,91)        422     963394    0.5    0.0     3.5    0.4
+      step.addr          IntCode                 IntCode.hs:100:11-44              424     963394    0.1    0.0     2.0    0.0
+       step.immediate    IntCode                 IntCode.hs:99:11-45               425     963394    0.2    0.0     1.9    0.0
+        pc               IntCode                 IntCode.hs:15:3-4                 426     963394    0.0    0.0     0.0    0.0
+        step.access      IntCode                 IntCode.hs:98:11-59               427     963394    1.8    0.0     1.8    0.0
+         memory          IntCode                 IntCode.hs:24:3-8                 428     963394    0.0    0.0     0.0    0.0
+      step.mode          IntCode                 IntCode.hs:97:11-53               423     963394    1.1    0.4     1.1    0.4
+     base                IntCode                 IntCode.hs:21:3-6                 482       2300    0.0    0.0     0.0    0.0
+     output              IntCode                 IntCode.hs:20:3-8                 491       1845    0.0    0.0     0.0    0.0
+   idle                  Main                    Day23PartTwo.hs:20:1-103          373      99000    1.1    0.0     1.8    0.0
+    idle.\               Main                    Day23PartTwo.hs:20:57-87          506    2302020    0.8    0.0     0.8    0.0
+     lastIn              IntCode                 IntCode.hs:19:3-8                 507    2302020    0.0    0.0     0.0    0.0
+     state               Main                    Day23PartTwo.hs:11:38-42          508    2302020    0.0    0.0     0.0    0.0
+    nat                  Main                    Day23PartTwo.hs:13:41-43          374      99000    0.0    0.0     0.0    0.0
+    bots                 Main                    Day23PartTwo.hs:13:26-29          505      97263    0.0    0.0     0.0    0.0
+   bots                  Main                    Day23PartTwo.hs:13:26-29          380      98976    0.0    0.0     0.0    0.0
+   switch                Main                    Day23PartTwo.hs:(23,1)-(28,30)    375      98976    0.2    0.1    26.1   34.5
+    switch.mail          Main                    Day23PartTwo.hs:28:9-30           376      98976    0.2    0.0     7.2    5.4
+     mailbag             Main                    Day23PartTwo.hs:31:1-40           378          0    4.4    5.4     7.1    5.4
+      collect            Main                    Day23PartTwo.hs:34:1-104          411    4948800    2.7    0.0     2.7    0.0
+       output            IntCode                 IntCode.hs:20:3-8                 413    4949415    0.0    0.0     0.0    0.0
+       state             Main                    Day23PartTwo.hs:11:38-42          412    4949415    0.0    0.0     0.0    0.0
+      bots               Main                    Day23PartTwo.hs:13:26-29          379      98976    0.0    0.0     0.0    0.0
+    switch.switchIt      Main                    Day23PartTwo.hs:25:9-86           414      98976    5.4   10.8    18.7   29.0
+     dispatch            Main                    Day23PartTwo.hs:(42,1)-(44,107)   416    4948800    3.6    7.8     7.6   11.4
+      state              Main                    Day23PartTwo.hs:11:38-42          419    4948800    0.0    0.0     0.0    0.0
+      dispatch.inp       Main                    Day23PartTwo.hs:43:9-53           473    4948704    2.3    0.3     2.3    0.3
+       input             IntCode                 IntCode.hs:18:3-7                 475    4948704    0.0    0.0     0.0    0.0
+       state             Main                    Day23PartTwo.hs:11:38-42          474    4948704    0.0    0.0     0.0    0.0
+      dispatch.input'    Main                    Day23PartTwo.hs:44:9-107          476    4948704    1.6    3.2     1.7    3.2
+       dispatch.input'.\ Main                    Day23PartTwo.hs:44:60-80          493      30750    0.0    0.0     0.0    0.0
+        address          Main                    Day23PartTwo.hs:11:18-24          494      30750    0.0    0.0     0.0    0.0
+     relieve             Main                    Day23PartTwo.hs:(37,1)-(39,61)    417    4948800    3.1    6.8     5.7    6.8
+      state              Main                    Day23PartTwo.hs:11:38-42          418    4948800    0.0    0.0     0.0    0.0
+      relieve.out        Main                    Day23PartTwo.hs:38:9-32           430    4948750    1.2    0.0     1.2    0.0
+       output            IntCode                 IntCode.hs:20:3-8                 432    4948750    0.0    0.0     0.0    0.0
+       state             Main                    Day23PartTwo.hs:11:38-42          431    4948750    0.0    0.0     0.0    0.0
+      relieve.output'    Main                    Day23PartTwo.hs:39:9-61           433    4948750    1.4    0.0     1.4    0.0
+     bots                Main                    Day23PartTwo.hs:13:26-29          415      98976    0.0    0.0     0.0    0.0
+    for255               Main                    Day23PartTwo.hs:56:1-34           492        615    0.0    0.0     0.0    0.0
+    switch.interceptIt   Main                    Day23PartTwo.hs:24:9-67           503        139    0.0    0.0     0.0    0.0
+     nat                 Main                    Day23PartTwo.hs:13:41-43          504        139    0.0    0.0     0.0    0.0
+    switch.natPacket     Main                    Day23PartTwo.hs:26:9-47           537         24    0.0    0.0     0.0    0.0
+     for255              Main                    Day23PartTwo.hs:56:1-34           538         24    0.0    0.0     0.0    0.0
+   stepAll.rebootIt      Main                    Day23PartTwo.hs:48:9-128          509         24    0.0    0.0     0.0    0.0
+    stepAll.resetLast    Main                    Day23PartTwo.hs:49:9-69           514       1150    0.0    0.0     0.0    0.0
+     state               Main                    Day23PartTwo.hs:11:38-42          516       1150    0.0    0.0     0.0    0.0
+    stepOneState         Main                    Day23PartTwo.hs:54:1-50           515       1150    0.0    0.0     0.0    0.0
+     state               Main                    Day23PartTwo.hs:11:38-42          518       1150    0.0    0.0     0.0    0.0
+     step                IntCode                 IntCode.hs:(72,1)-(106,21)        519       1150    0.0    0.0     0.0    0.0
+      step.op            IntCode                 IntCode.hs:87:11-31               524       1150    0.0    0.0     0.0    0.0
+      step.opcode        IntCode                 IntCode.hs:86:11-36               520       1150    0.0    0.0     0.0    0.0
+       pc                IntCode                 IntCode.hs:15:3-4                 521       1150    0.0    0.0     0.0    0.0
+       step.access       IntCode                 IntCode.hs:98:11-59               522       1150    0.0    0.0     0.0    0.0
+        memory           IntCode                 IntCode.hs:24:3-8                 523       1150    0.0    0.0     0.0    0.0
+      step.state'        IntCode                 IntCode.hs:84:11-53               525       1150    0.0    0.0     0.0    0.0
+      step.next          IntCode                 IntCode.hs:85:11-41               539        916    0.0    0.0     0.0    0.0
+       pc                IntCode                 IntCode.hs:15:3-4                 540        916    0.0    0.0     0.0    0.0
+      step.x             IntCode                 IntCode.hs:105:11-21              549        903    0.0    0.0     0.0    0.0
+       step.fetch        IntCode                 IntCode.hs:(88,11)-(92,85)        550        903    0.0    0.0     0.0    0.0
+        step.mode        IntCode                 IntCode.hs:97:11-53               551        903    0.0    0.0     0.0    0.0
+        step.value       IntCode                 IntCode.hs:101:11-35              552        669    0.0    0.0     0.0    0.0
+         step.access     IntCode                 IntCode.hs:98:11-59               558        669    0.0    0.0     0.0    0.0
+          memory         IntCode                 IntCode.hs:24:3-8                 559        669    0.0    0.0     0.0    0.0
+         step.addr       IntCode                 IntCode.hs:100:11-44              553        669    0.0    0.0     0.0    0.0
+          step.immediate IntCode                 IntCode.hs:99:11-45               554        669    0.0    0.0     0.0    0.0
+           pc            IntCode                 IntCode.hs:15:3-4                 555        669    0.0    0.0     0.0    0.0
+           step.access   IntCode                 IntCode.hs:98:11-59               556        669    0.0    0.0     0.0    0.0
+            memory       IntCode                 IntCode.hs:24:3-8                 557        669    0.0    0.0     0.0    0.0
+        step.immediate   IntCode                 IntCode.hs:99:11-45               560        234    0.0    0.0     0.0    0.0
+         pc              IntCode                 IntCode.hs:15:3-4                 561        234    0.0    0.0     0.0    0.0
+         step.access     IntCode                 IntCode.hs:98:11-59               562        234    0.0    0.0     0.0    0.0
+          memory         IntCode                 IntCode.hs:24:3-8                 563        234    0.0    0.0     0.0    0.0
+      write              IntCode                 IntCode.hs:(67,1)-(69,28)         526        523    0.0    0.0     0.0    0.0
+       memory            IntCode                 IntCode.hs:24:3-8                 548        523    0.0    0.0     0.0    0.0
+      step.y             IntCode                 IntCode.hs:106:11-21              564        510    0.0    0.0     0.0    0.0
+       step.fetch        IntCode                 IntCode.hs:(88,11)-(92,85)        565        510    0.0    0.0     0.0    0.0
+        step.immediate   IntCode                 IntCode.hs:99:11-45               567        510    0.0    0.0     0.0    0.0
+         pc              IntCode                 IntCode.hs:15:3-4                 568        510    0.0    0.0     0.0    0.0
+         step.access     IntCode                 IntCode.hs:98:11-59               569        510    0.0    0.0     0.0    0.0
+          memory         IntCode                 IntCode.hs:24:3-8                 570        510    0.0    0.0     0.0    0.0
+        step.mode        IntCode                 IntCode.hs:97:11-53               566        510    0.0    0.0     0.0    0.0
+      input              IntCode                 IntCode.hs:18:3-7                 527        497    0.0    0.0     0.0    0.0
+      step.result        IntCode                 IntCode.hs:104:11-24              571        276    0.0    0.0     0.0    0.0
+       step.put          IntCode                 IntCode.hs:(93,11)-(96,91)        572        276    0.0    0.0     0.0    0.0
+        step.addr        IntCode                 IntCode.hs:100:11-44              574        276    0.0    0.0     0.0    0.0
+         step.immediate  IntCode                 IntCode.hs:99:11-45               575        276    0.0    0.0     0.0    0.0
+          pc             IntCode                 IntCode.hs:15:3-4                 576        276    0.0    0.0     0.0    0.0
+          step.access    IntCode                 IntCode.hs:98:11-59               577        276    0.0    0.0     0.0    0.0
+           memory        IntCode                 IntCode.hs:24:3-8                 578        276    0.0    0.0     0.0    0.0
+        step.mode        IntCode                 IntCode.hs:97:11-53               573        276    0.0    0.0     0.0    0.0
+      step.put           IntCode                 IntCode.hs:(93,11)-(96,91)        541        247    0.0    0.0     0.0    0.0
+       step.addr         IntCode                 IntCode.hs:100:11-44              543        247    0.0    0.0     0.0    0.0
+        step.immediate   IntCode                 IntCode.hs:99:11-45               544        247    0.0    0.0     0.0    0.0
+         pc              IntCode                 IntCode.hs:15:3-4                 545        247    0.0    0.0     0.0    0.0
+         step.access     IntCode                 IntCode.hs:98:11-59               546        247    0.0    0.0     0.0    0.0
+          memory         IntCode                 IntCode.hs:24:3-8                 547        247    0.0    0.0     0.0    0.0
+       step.mode         IntCode                 IntCode.hs:97:11-53               542        247    0.0    0.0     0.0    0.0
+    delivered            Main                    Day23PartTwo.hs:13:58-66          510         24    0.0    0.0     0.0    0.0
+   stepAll.rebootPacket  Main                    Day23PartTwo.hs:51:9-55           534         24    0.0    0.0     0.0    0.0
+    nat                  Main                    Day23PartTwo.hs:13:41-43          536         24    0.0    0.0     0.0    0.0
+    replace              Common                  Common.hs:38:1-54                 535         24    0.0    0.0     0.0    0.0
+   stepAll.dispatched    Main                    Day23PartTwo.hs:50:9-90           511         23    0.0    0.0     0.0    0.0
+    bots                 Main                    Day23PartTwo.hs:13:26-29          512         46    0.0    0.0     0.0    0.0
+    dispatch             Main                    Day23PartTwo.hs:(42,1)-(44,107)   513         23    0.0    0.0     0.0    0.0
+     dispatch.inp        Main                    Day23PartTwo.hs:43:9-53           528         23    0.0    0.0     0.0    0.0
+      input              IntCode                 IntCode.hs:18:3-7                 530         23    0.0    0.0     0.0    0.0
+      state              Main                    Day23PartTwo.hs:11:38-42          529         23    0.0    0.0     0.0    0.0
+     dispatch.input'     Main                    Day23PartTwo.hs:44:9-107          531         23    0.0    0.0     0.0    0.0
+      dispatch.input'.\  Main                    Day23PartTwo.hs:44:60-80          532         23    0.0    0.0     0.0    0.0
+       address           Main                    Day23PartTwo.hs:11:18-24          533         23    0.0    0.0     0.0    0.0
+     state               Main                    Day23PartTwo.hs:11:38-42          517         23    0.0    0.0     0.0    0.0
+  main.program           Main                    Day23PartTwo.hs:60:9-32           392          1    0.0    0.0     0.9    2.0
+   parse                 IntCode                 IntCode.hs:52:1-60                393          1    0.0    0.0     0.9    2.0
+    parseMaybe           Common                  Common.hs:(22,1)-(25,38)          394          1    0.0    0.0     0.9    2.0
+     numberList          Common                  Common.hs:19:1-32                 401          0    0.0    0.0     0.9    2.0
+      number             Common                  Common.hs:(14,1)-(17,37)          402          0    0.8    1.9     0.8    2.0
+       readInt           Common                  Common.hs:10:1-14                 406          0    0.1    0.1     0.1    0.1
+  start                  Main                    Day23PartTwo.hs:(16,1)-(17,110)   371          1    0.0    0.0     0.0    0.0
+   start.bots            Main                    Day23PartTwo.hs:17:9-110          381          1    0.0    0.0     0.0    0.0
+    start.bots.\         Main                    Day23PartTwo.hs:17:27-101         383         50    0.0    0.0     0.0    0.0
+     initialize          IntCode                 IntCode.hs:(27,1)-(37,23)         385         50    0.0    0.0     0.0    0.0
+      load               IntCode                 IntCode.hs:40:1-63                391          1    0.0    0.0     0.0    0.0
