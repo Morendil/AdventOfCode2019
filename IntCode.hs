@@ -3,6 +3,7 @@ module IntCode where
 import Common
 import Data.Maybe
 import Data.List
+import Data.List.Tools
 import qualified Data.IntMap as Map
 
 import Debug.Trace
@@ -52,7 +53,7 @@ parse :: String -> Program
 parse program = fromMaybe [] $ parseMaybe numberList program
 
 run :: Inputs -> Program -> Outputs
-run inputs program = output $ untilStable $ iterate step $ initialize program inputs
+run inputs program = output $ last $ takeUntil halt $ iterate step $ initialize program inputs
 
 out (_,_,v) = v
 

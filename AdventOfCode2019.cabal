@@ -3,13 +3,15 @@ version: 1.0
 stability: experimental
 
 executable AdventOfCode2019
-    main-is: Day23PartTwo.hs
+    main-is: Day21PartOne.hs
     other-modules:
         Common
-        IntCode
+        IntCodeM
     build-depends:
         base -any,
         extra -any,
+        monad-loops -any,
+        primitive -any,
         hspec -any,
         ansi-terminal -any,
         containers -any,
@@ -17,4 +19,5 @@ executable AdventOfCode2019
         QuickCheck -any,
         utility-ht -any,
         primes -any,
-        yjtools -any
+        yjtools -any,
+        vector -any

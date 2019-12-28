@@ -1,2 +1,2 @@
 ## Dockerfile for a haskell environment
-FROM haskell
+FROM morendil/haskell

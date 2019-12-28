@@ -165,4 +165,18 @@ packages:
       sha256: ad604aab554e26d78561ad1288636b52c2e88b40e1fb37594efc96465a0ce68c
   original:
     hackage: primitive-0.7.0.0@sha256:ee352d97cc390d8513530029a2213a95c179a66c406906b18d03702c1d9ab8e5,3416
+- completed:
+    hackage: vector-0.12.0.3@sha256:1422b0bcf4e7675116ca8d9f473bf239850c58c4518a56010e3bfebeac345ace,7171
+    pantry-tree:
+      size: 3429
+      sha256: 1adb067bf4b6abf2269a369e18016e5a0e6c40b876aa64dfea9f47547d915ef6
+  original:
+    hackage: vector-0.12.0.3@sha256:1422b0bcf4e7675116ca8d9f473bf239850c58c4518a56010e3bfebeac345ace,7171
+- completed:
+    hackage: monad-loops-0.4.3@sha256:ada4f1295ece07f9a7398bc5b40c4532f95a733a8604d2a2f57f05f878766df2,1751
+    pantry-tree:
+      size: 243
+      sha256: c8d919cbf7cda1c8551534cb17844c56cbfcbf1b18667b1a0700b97c87ff5059
+  original:
+    hackage: monad-loops-0.4.3@sha256:ada4f1295ece07f9a7398bc5b40c4532f95a733a8604d2a2f57f05f878766df2,1751
 snapshots: []

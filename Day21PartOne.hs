@@ -1,7 +1,7 @@
-module Day21PartOne where
+module Main where
 
 import Common
-import IntCode
+import IntCodeM
 import Data.Char
 import Data.List
 
