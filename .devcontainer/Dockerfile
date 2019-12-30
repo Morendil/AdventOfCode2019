@@ -1,2 +1,2 @@
 ## Dockerfile for a haskell environment
-FROM morendil/haskell
+FROM fpco/stack-build-small
